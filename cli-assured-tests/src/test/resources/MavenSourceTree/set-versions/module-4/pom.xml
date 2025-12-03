@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    SPDX-FileCopyrightText: Copyright (c) 2025 CLI Assured contributors as indicated by the @author tags
+    SPDX-License-Identifier: Apache-2.0
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.srcdeps.versions</groupId>
+        <artifactId>tree-parent</artifactId>
+        <version>0.0.1</version>
+    </parent>
+
+    <artifactId>module-4</artifactId>
+
+    <properties>
+        <plugin-1.version>0.0.1</plugin-1.version>
+        <external-plugin-1.version>6.7.8</external-plugin-1.version>
+        <external-plugin-2.version>7.8.9</external-plugin-2.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.srcdeps.versions</groupId>
+            <artifactId>module-1</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.srcdeps.versions</groupId>
+            <artifactId>module-2</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.srcdeps.versions</groupId>
+            <artifactId>module-3</artifactId>
+            <version>0.0.1</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.srcdeps.whatever</groupId>
+                    <artifactId>whatever-1</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.srcdeps.versions</groupId>
+            <artifactId>module-5</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.srcdeps.versions</groupId>
+            <artifactId>plugin-1</artifactId>
+            <version>${plugin-1.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+
+        <extensions>
+            <extension>
+                <groupId>org.srcdeps.versions</groupId>
+                <artifactId>module-7</artifactId>
+                <version>0.0.1</version>
+            </extension>
+            <extension>
+                <groupId>org.srcdeps.external</groupId>
+                <artifactId>external-extension</artifactId>
+                <version>1.2.3</version>
+            </extension>
+        </extensions>
+
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.srcdeps.external</groupId>
+                    <artifactId>external-plugin-2</artifactId>
+                    <version>${external-plugin-2.version}</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
+        <plugins>
+            <plugin>
+                <groupId>org.srcdeps.versions</groupId>
+                <artifactId>plugin-1</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.srcdeps.versions</groupId>
+                <artifactId>plugin-2</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.srcdeps.versions</groupId>
+                <artifactId>plugin-3</artifactId>
+                <version>0.0.1</version>
+            </plugin>
+            <plugin>
+                <groupId>org.srcdeps.external</groupId>
+                <artifactId>external-plugin-1</artifactId>
+                <version>${external-plugin-1.version}</version>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>p1</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.srcdeps.versions</groupId>
+                    <artifactId>module-3</artifactId>
+                    <version>0.0.1</version>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
+
+</project>
