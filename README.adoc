@@ -27,6 +27,9 @@ CliAssured.command("echo", "CLI Assured rocks!")
     .assertSuccess()
     .output()
     .hasLine("CLI Assured rocks!")
+    .hasLineContaining("rocks")
+    .hasLineMatching("CLI.*rocks")
+    .doesNotHaveLineContaining("ERROR")
     .hasLineCount(1);
 ----
 
