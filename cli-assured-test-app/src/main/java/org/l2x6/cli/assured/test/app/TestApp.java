@@ -4,14 +4,24 @@
  */
 package org.l2x6.cli.assured.test.app;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 public class TestApp {
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) throws InterruptedException, IOException {
         switch (args[0]) {
         case "hello":
             System.out.println("Hello " + args[1]);
             break;
         case "helloErr":
             System.err.println("Hello stderr " + args[1]);
+            break;
+        case "write":
+            final String msg = args[1];
+            final String path = args[2];
+            Files.write(Paths.get(path), msg.getBytes(StandardCharsets.UTF_8));
             break;
         case "sleep":
             final long delay = Long.parseLong(args[1]);

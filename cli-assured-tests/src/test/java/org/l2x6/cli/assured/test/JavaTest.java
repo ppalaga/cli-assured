@@ -4,9 +4,11 @@
  */
 package org.l2x6.cli.assured.test;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.UUID;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.l2x6.cli.assured.CliAssured;
@@ -255,6 +257,19 @@ public class JavaTest {
         }
     }
 
+    @Test
+    void cd() throws IOException {
+        Path cd = Paths.get("target/JavaTest-" + UUID.randomUUID());
+        Files.createDirectories(cd);
+        command("write", "Hello Dolly", "hello.txt")
+                .cd(cd)
+                .awaitTermination()
+                .assertSuccess()
+                .output()
+                .hasLineCount(0);
+        Assertions.assertThat(cd.resolve("hello.txt")).isRegularFile().hasContent("Hello Dolly");
+    }
+
     static CommandResult run(String... args) {
         return command(args)
                 .awaitTermination();
@@ -263,7 +278,8 @@ public class JavaTest {
     static Command.Builder command(String... args) {
         final String testAppArtifactId = "cli-assured-test-app";
         final String version = System.getProperty("project.version");
-        Path testAppJar = Paths.get("../" + testAppArtifactId + "/target/" + testAppArtifactId + "-" + version + ".jar");
+        Path testAppJar = Paths.get("../" + testAppArtifactId + "/target/" + testAppArtifactId + "-" + version + ".jar")
+                .toAbsolutePath().normalize();
         if (!Files.isRegularFile(testAppJar)) {
 
             Path localRepo = Paths.get(System.getProperty("settings.localRepository"));

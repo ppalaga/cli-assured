@@ -290,6 +290,18 @@ public class Command {
         }
 
         /**
+         * Set the given {@code workDirectory} to the undelying {@link Process}
+         *
+         * @param  workDirectory the work directory of the undelying {@link Process}
+         * @return               this {@link Builder}
+         * @since                0.0.1
+         */
+        public Builder cd(Path workDirectory) {
+            this.cd = workDirectory;
+            return this;
+        }
+
+        /**
          * Create a new {@link Command} and call {@link Command#start()}
          *
          * @return a {@link CommandProcess}
