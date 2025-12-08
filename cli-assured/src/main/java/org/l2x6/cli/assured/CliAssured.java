@@ -4,6 +4,8 @@
  */
 package org.l2x6.cli.assured;
 
+import org.l2x6.cli.assured.Command.Builder;
+
 /**
  * @since  0.0.1
  * @author <a href="https://github.com/ppalaga">Peter Palaga</a>
@@ -14,7 +16,7 @@ public class CliAssured {
      * @since  0.0.1
      */
     public static Command.Builder given() {
-        return Command.builder();
+        return new Builder();
     }
 
     /**
@@ -23,7 +25,7 @@ public class CliAssured {
      * @since  0.0.1
      */
     public static Command.Builder java() {
-        return Command.builder().java();
+        return new Builder().java();
     }
 
     /**
@@ -31,6 +33,6 @@ public class CliAssured {
      * @since  0.0.1
      */
     public static Command.Builder command(String executable, String... args) {
-        return Command.builder().command(executable, args);
+        return new Builder().command(executable, args);
     }
 }
