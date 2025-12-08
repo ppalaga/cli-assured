@@ -26,9 +26,9 @@ public abstract class OutputAsserts extends Thread implements OutputAssert {
         this.cancelled = true;
     }
 
-    public static class DummyOutputConsumer extends OutputAsserts {
+    public static class DevNull extends OutputAsserts {
 
-        public DummyOutputConsumer(InputStream in) {
+        public DevNull(InputStream in) {
             super(in);
         }
 

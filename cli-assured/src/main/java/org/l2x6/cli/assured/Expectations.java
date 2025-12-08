@@ -11,28 +11,30 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.regex.Pattern;
-import org.l2x6.cli.assured.OutputAsserts.DummyOutputConsumer;
+import org.l2x6.cli.assured.OutputAsserts.DevNull;
 import org.l2x6.cli.assured.asserts.ExitCodeAssert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Assertions applicable to an output of a {@link CommandProcess} or its exit code.
+ *
+ * @since  0.0.1
+ * @author <a href="https://github.com/ppalaga">Peter Palaga</a>
+ */
 public class Expectations {
     private static final Logger log = LoggerFactory.getLogger(Expectations.class);
     final Function<InputStream, OutputAsserts> stdout;
     final Function<InputStream, OutputAsserts> stderr;
     final List<ExitCodeAssert> exitCodeAsserts;
 
-    private Expectations(
+    Expectations(
             Function<InputStream, OutputAsserts> stdout,
             Function<InputStream, OutputAsserts> stderr,
             List<ExitCodeAssert> exitCodeAsserts) {
         this.stdout = Objects.requireNonNull(stdout, "stdout");
         this.stderr = stderr;
         this.exitCodeAsserts = Objects.requireNonNull(exitCodeAsserts, "exitCodeAsserts");
-    }
-
-    public static Builder builder(Command.Builder command) {
-        return new Builder(command);
     }
 
     public static class Builder {
@@ -45,7 +47,7 @@ public class Expectations {
 
         private boolean stderrToStdout;
 
-        private Builder(org.l2x6.cli.assured.Command.Builder command) {
+        Builder(org.l2x6.cli.assured.Command.Builder command) {
             this.command = command;
         }
 
@@ -106,7 +108,7 @@ public class Expectations {
             final Function<InputStream, OutputAsserts> stdo;
             if (stdoutAsserts == null) {
                 log.debug("stdout will be ignored because no consumer was specified for it");
-                stdo = DummyOutputConsumer::new;
+                stdo = DevNull::new;
             } else {
                 stdo = stdoutAsserts;
             }

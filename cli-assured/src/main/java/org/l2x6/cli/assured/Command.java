@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import org.l2x6.cli.assured.Expectations.Builder;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -35,10 +36,6 @@ public class Command {
     final String[] cmdArray;
     final String cmdArrayString;
     final Expectations expectations;
-
-    public static Builder builder() {
-        return new Builder();
-    }
 
     Command(
             String executable,
@@ -136,6 +133,9 @@ public class Command {
         private Map<String, String> env = new LinkedHashMap<>();
         private Path cd;
         private Expectations.Builder expectations;
+
+        Builder() {
+        }
 
         /**
          * Set the executable of the command and its arguments
@@ -284,7 +284,7 @@ public class Command {
          * @since  0.0.1
          */
         public Expectations.Builder expect() {
-            return Expectations.builder(this);
+            return new Expectations.Builder(this);
         }
 
         /**
