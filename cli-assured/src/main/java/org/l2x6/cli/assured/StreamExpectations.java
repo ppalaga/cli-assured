@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -152,7 +153,7 @@ public class StreamExpectations implements LineAssert {
         }
 
         /**
-         * Assert that the underlying output stream has the given number of lines upon termination of the associated process.
+         * Assert that upon termination of the associated process, the underlying output stream has the given number of lines.
          *
          * @param  expectedLineCount
          * @return                   this {@link Builder}
@@ -160,6 +161,21 @@ public class StreamExpectations implements LineAssert {
          */
         public Builder hasLineCount(int expectedLineCount) {
             asserts.add(LineAssert.hasLineCount(expectedLineCount));
+            return this;
+        }
+
+        /**
+         * Assert that upon termination of the associated process, the underlying output stream's number of lines satisfies
+         * the given {@link Predicate}.
+         *
+         * @param  expected    the condition the number of actual lines must satisfy
+         * @param  description the description of a failure typically something like
+         *                     {@code "Expected number of lines <condition> but found %d lines"}
+         * @return             this {@link Builder}
+         * @since              0.0.1
+         */
+        public Builder hasLineCount(Predicate<Integer> expected, String description) {
+            asserts.add(LineAssert.hasLineCount(expected, description));
             return this;
         }
 
