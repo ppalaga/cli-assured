@@ -15,7 +15,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -220,14 +222,29 @@ public interface LineAssert extends Assert {
     }
 
     /**
-     * Assert that the underlying output stream has the given number of lines upon termination of the associated process.
+     * Assert that upon termination of the associated process, the underlying output stream has the given number of lines.
      *
      * @param  expectedLineCount
      * @return                   a new {@link LineAssert}
      * @since                    0.0.1
      */
     static LineAssert hasLineCount(int expectedLineCount) {
-        return new LineCountAssert(expectedLineCount);
+        return new LineCountAssert(actual -> actual.intValue() == expectedLineCount,
+                "Expected " + expectedLineCount + " lines but found %d lines");
+    }
+
+    /**
+     * Assert that upon termination of the associated process, the underlying output stream's number of lines satisfies
+     * the given {@link Predicate}.
+     *
+     * @param  expected    the condition the number of actual lines must satisfy
+     * @param  description the description of a failure typically something like
+     *                     {@code "Expected number of lines <condition> but found %d lines"}
+     * @return             a new {@link LineAssert}
+     * @since              0.0.1
+     */
+    public static LineCountAssert hasLineCount(Predicate<Integer> expected, String description) {
+        return new LineCountAssert(expected, description);
     }
 
     static class LinesAssert<C, H> implements LineAssert {
@@ -314,6 +331,30 @@ public interface LineAssert extends Assert {
             return this;
         }
 
+    }
+
+    static class LineCountAssert implements LineAssert {
+        private final Predicate<Integer> expected;
+        private final AtomicInteger actualCount = new AtomicInteger();
+        private final String description;
+
+        LineCountAssert(Predicate<Integer> expected, String description) {
+            this.expected = expected;
+            this.description = description;
+        }
+
+        @Override
+        public void assertSatisfied() {
+            if (!expected.test(actualCount.get())) {
+                throw new AssertionError(String.format(description, actualCount.get()));
+            }
+        }
+
+        @Override
+        public LineAssert line(String line) {
+            actualCount.incrementAndGet();
+            return this;
+        }
     }
 
 }

@@ -204,7 +204,15 @@ public class LineAssertTest {
                 .line("foo")::assertSatisfied)
                 .isInstanceOf(AssertionError.class)
                 .hasMessage(
-                        "Expected 3 lines but found 2");
+                        "Expected 3 lines but found 2 lines");
+        Assertions
+                .assertThatThrownBy(
+                        LineAssert.hasLineCount(i -> i.intValue() < 1, "Expected number of lines < 1 but found %d lines")
+                                .line("maz")
+                                .line("foo")::assertSatisfied)
+                .isInstanceOf(AssertionError.class)
+                .hasMessage(
+                        "Expected number of lines < 1 but found 2 lines");
     }
 
 }
