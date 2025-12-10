@@ -42,7 +42,7 @@ public interface LineAssert extends Assert {
      * @return       a new {@link LineAssert}
      * @since        0.0.1
      */
-    static LineAssert contains(Collection<String> lines) {
+    static LineAssert hasLines(Collection<String> lines) {
         return new LinesAssert<String, String>(
                 Collections.unmodifiableList(new ArrayList<>(lines)),
                 new LinkedHashSet<>(lines),
@@ -57,7 +57,7 @@ public interface LineAssert extends Assert {
      * @return       a new {@link LineAssert}
      * @since        0.0.1
      */
-    static LineAssert doesNotContain(Collection<String> lines) {
+    static LineAssert doesNotHaveLines(Collection<String> lines) {
         final Set<String> checks = Collections.unmodifiableSet(new LinkedHashSet<>(lines));
         return new LinesAssert<String, String>(
                 checks,
@@ -78,7 +78,7 @@ public interface LineAssert extends Assert {
      * @return            a new {@link LineAssert}
      * @since             0.0.1
      */
-    static LineAssert containsSubstrings(Collection<String> substrings) {
+    static LineAssert hasLinesContaining(Collection<String> substrings) {
         return new LinesAssert<String, String>(
                 Collections.unmodifiableList(new ArrayList<>(substrings)),
                 new LinkedHashSet<>(substrings),
@@ -100,7 +100,7 @@ public interface LineAssert extends Assert {
      * @return            a new {@link LineAssert}
      * @since             0.0.1
      */
-    static LineAssert doesNotContainSubstrings(Collection<String> unexpectedSubstrings) {
+    static LineAssert doesNotHaveLinesContaining(Collection<String> unexpectedSubstrings) {
         final List<String> checks = Collections.unmodifiableList(new ArrayList<>(unexpectedSubstrings));
         return new LinesAssert<String, String>(
                 checks,
@@ -125,7 +125,7 @@ public interface LineAssert extends Assert {
      * @return       a new {@link LineAssert}
      * @since        0.0.1
      */
-    static LineAssert containsMatchingPatterns(Collection<Pattern> regex) {
+    static LineAssert hasLinesMatchingPatterns(Collection<Pattern> regex) {
         return LinesAssert.containsMatching(regex);
     }
 
@@ -138,7 +138,7 @@ public interface LineAssert extends Assert {
      * @return       a new {@link LineAssert}
      * @since        0.0.1
      */
-    static LineAssert containsMatching(Collection<String> regex) {
+    static LineAssert hasLinesMatching(Collection<String> regex) {
         return LinesAssert.containsMatching(LinesAssert.compile(regex));
     }
 
@@ -150,7 +150,7 @@ public interface LineAssert extends Assert {
      * @return       a new {@link LineAssert}
      * @since        0.0.1
      */
-    static LineAssert doesNotContainMatchingPatterns(Collection<Pattern> regex) {
+    static LineAssert doesNotHaveLinesMatchingPatterns(Collection<Pattern> regex) {
         return LinesAssert.doesNotContainMatching(regex);
     }
 
@@ -162,7 +162,7 @@ public interface LineAssert extends Assert {
      * @return       a new {@link LineAssert}
      * @since        0.0.1
      */
-    static LineAssert doesNotContainMatching(Collection<String> regex) {
+    static LineAssert doesNotHaveLinesMatching(Collection<String> regex) {
         return LinesAssert.doesNotContainMatching(LinesAssert.compile(regex));
     }
 
@@ -173,7 +173,7 @@ public interface LineAssert extends Assert {
      * @return                   a new {@link LineAssert}
      * @since                    0.0.1
      */
-    static LineAssert hasCount(int expectedLineCount) {
+    static LineAssert hasLineCount(int expectedLineCount) {
         return new LineCountAssert(expectedLineCount);
     }
 

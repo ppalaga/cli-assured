@@ -14,7 +14,7 @@ public class EchoTest {
         CliAssured.command("echo", "CLI Assured rocks!")
                 .expect()
                 .stdout()
-                .contains("CLI Assured rocks!")
+                .hasLines("CLI Assured rocks!")
                 .exitCode(0)
                 .awaitTermination()
                 .assertSuccess();

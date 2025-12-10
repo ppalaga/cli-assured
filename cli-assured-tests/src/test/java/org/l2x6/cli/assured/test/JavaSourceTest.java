@@ -27,8 +27,8 @@ public class JavaSourceTest {
                 .args("Joe")
                 .expect()
                 .stdout()
-                .contains("Hello Joe")
-                .hasCount(1)
+                .hasLines("Hello Joe")
+                .hasLineCount(1)
                 .start()
                 .awaitTermination()
                 .assertSuccess();
