@@ -78,8 +78,8 @@ public class StreamExpectations implements LineAssert {
          * @return       this {@link Builder}
          * @since        0.0.1
          */
-        public Builder contains(String... lines) {
-            asserts.add(LineAssert.contains(Arrays.asList(lines)));
+        public Builder hasLines(String... lines) {
+            asserts.add(LineAssert.hasLines(Arrays.asList(lines)));
             return this;
         }
 
@@ -90,8 +90,8 @@ public class StreamExpectations implements LineAssert {
          * @return       this {@link Builder}
          * @since        0.0.1
          */
-        public Builder contains(Collection<String> lines) {
-            asserts.add(LineAssert.contains(lines));
+        public Builder hasLines(Collection<String> lines) {
+            asserts.add(LineAssert.hasLines(lines));
             return this;
         }
 
@@ -102,8 +102,8 @@ public class StreamExpectations implements LineAssert {
          * @return       this {@link Builder}
          * @since        0.0.1
          */
-        public Builder doesNotContain(String... lines) {
-            asserts.add(LineAssert.doesNotContain(Arrays.asList(lines)));
+        public Builder doesNotHaveLines(String... lines) {
+            asserts.add(LineAssert.doesNotHaveLines(Arrays.asList(lines)));
             return this;
         }
 
@@ -114,8 +114,8 @@ public class StreamExpectations implements LineAssert {
          * @return       this {@link Builder}
          * @since        0.0.1
          */
-        public Builder doesNotContain(Collection<String> lines) {
-            asserts.add(LineAssert.doesNotContain(lines));
+        public Builder doesNotHaveLines(Collection<String> lines) {
+            asserts.add(LineAssert.doesNotHaveLines(lines));
             return this;
         }
 
@@ -126,8 +126,8 @@ public class StreamExpectations implements LineAssert {
          * @return                   this {@link Builder}
          * @since                    0.0.1
          */
-        public Builder hasCount(int expectedLineCount) {
-            asserts.add(LineAssert.hasCount(expectedLineCount));
+        public Builder hasLineCount(int expectedLineCount) {
+            asserts.add(LineAssert.hasLineCount(expectedLineCount));
             return this;
         }
 
@@ -139,8 +139,8 @@ public class StreamExpectations implements LineAssert {
          * @return            this {@link Builder}
          * @since             0.0.1
          */
-        public Builder containsSubstrings(String... substrings) {
-            asserts.add(LineAssert.containsSubstrings(Arrays.asList(substrings)));
+        public Builder hasLinesContaining(String... substrings) {
+            asserts.add(LineAssert.hasLinesContaining(Arrays.asList(substrings)));
             return this;
         }
 
@@ -152,8 +152,8 @@ public class StreamExpectations implements LineAssert {
          * @return            this {@link Builder}
          * @since             0.0.1
          */
-        public Builder containsSubstrings(Collection<String> substrings) {
-            asserts.add(LineAssert.containsSubstrings(substrings));
+        public Builder hasLinesContaining(Collection<String> substrings) {
+            asserts.add(LineAssert.hasLinesContaining(substrings));
             return this;
         }
 
@@ -164,8 +164,8 @@ public class StreamExpectations implements LineAssert {
          * @return            this {@link Builder}
          * @since             0.0.1
          */
-        public Builder doesNotContainSubstrings(String... substrings) {
-            asserts.add(LineAssert.doesNotContainSubstrings(Arrays.asList(substrings)));
+        public Builder doesNotHaveLinesContaining(String... substrings) {
+            asserts.add(LineAssert.doesNotHaveLinesContaining(Arrays.asList(substrings)));
             return this;
         }
 
@@ -176,8 +176,8 @@ public class StreamExpectations implements LineAssert {
          * @return            this {@link Builder}
          * @since             0.0.1
          */
-        public Builder doesNotContainSubstrings(Collection<String> substrings) {
-            asserts.add(LineAssert.doesNotContainSubstrings(substrings));
+        public Builder doesNotHaveLinesContaining(Collection<String> substrings) {
+            asserts.add(LineAssert.doesNotHaveLinesContaining(substrings));
             return this;
         }
 
@@ -190,8 +190,8 @@ public class StreamExpectations implements LineAssert {
          * @return       this {@link Builder}
          * @since        0.0.1
          */
-        public Builder containsMatching(Collection<String> regex) {
-            asserts.add(LineAssert.containsMatching(regex));
+        public Builder hasLinesMatching(Collection<String> regex) {
+            asserts.add(LineAssert.hasLinesMatching(regex));
             return this;
         }
 
@@ -204,8 +204,8 @@ public class StreamExpectations implements LineAssert {
          * @return       this {@link Builder}
          * @since        0.0.1
          */
-        public Builder containsMatching(String... regex) {
-            asserts.add(LineAssert.containsMatching(Arrays.asList(regex)));
+        public Builder hasLinesMatching(String... regex) {
+            asserts.add(LineAssert.hasLinesMatching(Arrays.asList(regex)));
             return this;
         }
 
@@ -218,8 +218,8 @@ public class StreamExpectations implements LineAssert {
          * @return       this {@link Builder}
          * @since        0.0.1
          */
-        public Builder containsMatching(Pattern... regex) {
-            asserts.add(LineAssert.containsMatchingPatterns(Arrays.asList(regex)));
+        public Builder hasLinesMatching(Pattern... regex) {
+            asserts.add(LineAssert.hasLinesMatchingPatterns(Arrays.asList(regex)));
             return this;
         }
 
@@ -231,8 +231,8 @@ public class StreamExpectations implements LineAssert {
          * @return       this {@link Builder}
          * @since        0.0.1
          */
-        public Builder doesNotContainMatching(Collection<String> regex) {
-            asserts.add(LineAssert.doesNotContainMatching(regex));
+        public Builder doesNotHaveLinesMatching(Collection<String> regex) {
+            asserts.add(LineAssert.doesNotHaveLinesMatching(regex));
             return this;
         }
 
@@ -244,8 +244,8 @@ public class StreamExpectations implements LineAssert {
          * @return       this {@link Builder}
          * @since        0.0.1
          */
-        public Builder doesNotContainMatching(String... regex) {
-            asserts.add(LineAssert.doesNotContainMatching(Arrays.asList(regex)));
+        public Builder doesNotHaveLinesMatching(String... regex) {
+            asserts.add(LineAssert.doesNotHaveLinesMatching(Arrays.asList(regex)));
             return this;
         }
 
@@ -257,8 +257,8 @@ public class StreamExpectations implements LineAssert {
          * @return       this {@link Builder}
          * @since        0.0.1
          */
-        public Builder doesNotContainMatching(Pattern... regex) {
-            asserts.add(LineAssert.doesNotContainMatchingPatterns(Arrays.asList(regex)));
+        public Builder doesNotHaveLinesMatching(Pattern... regex) {
+            asserts.add(LineAssert.doesNotHaveLinesMatchingPatterns(Arrays.asList(regex)));
             return this;
         }
 

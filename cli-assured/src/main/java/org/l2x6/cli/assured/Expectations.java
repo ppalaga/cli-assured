@@ -115,7 +115,7 @@ public class Expectations {
             }
             if (stderrAsserts == null && !stderrToStdout) {
                 log.debug("Any output to stderr will cause an error because no consumer was specified for it");
-                stderrAsserts = stderr().doesNotContainMatching(MATCH_ANY_PATTERN).build();
+                stderrAsserts = stderr().doesNotHaveLinesMatching(MATCH_ANY_PATTERN).build();
             }
             final List<ExitCodeAssert> eca;
             if (exitCodeAsserts.isEmpty()) {

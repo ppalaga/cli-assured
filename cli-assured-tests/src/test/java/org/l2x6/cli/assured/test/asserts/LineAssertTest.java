@@ -13,19 +13,19 @@ import org.l2x6.cli.assured.asserts.LineAssert;
 public class LineAssertTest {
 
     @Test
-    void contains() {
+    void hasLines() {
         LineAssert
-                .contains(Arrays.asList("foo", "bar"))
+                .hasLines(Arrays.asList("foo", "bar"))
                 .line("foo")
                 .line("bar")
                 .assertSatisfied();
 
-        LineAssert.contains(Arrays.asList("foo", "bar"))
+        LineAssert.hasLines(Arrays.asList("foo", "bar"))
                 .line("bar")
                 .line("foo")
                 .assertSatisfied();
 
-        Assertions.assertThatThrownBy(LineAssert.contains(Arrays.asList("foo", "bar"))
+        Assertions.assertThatThrownBy(LineAssert.hasLines(Arrays.asList("foo", "bar"))
                 .line("maz")
                 .line("baz")::assertSatisfied)
                 .isInstanceOf(AssertionError.class)
@@ -35,14 +35,14 @@ public class LineAssertTest {
     }
 
     @Test
-    void doesNotContain() {
+    void doesNotHaveLines() {
         LineAssert
-                .doesNotContain(Arrays.asList("baz", "bam"))
+                .doesNotHaveLines(Arrays.asList("baz", "bam"))
                 .line("foo")
                 .line("bar")
                 .assertSatisfied();
 
-        Assertions.assertThatThrownBy(LineAssert.doesNotContain(Arrays.asList("foo"))
+        Assertions.assertThatThrownBy(LineAssert.doesNotHaveLines(Arrays.asList("foo"))
                 .line("maz")
                 .line("foo")::assertSatisfied)
                 .isInstanceOf(AssertionError.class)
@@ -52,14 +52,14 @@ public class LineAssertTest {
     }
 
     @Test
-    void containsSubstrings() {
+    void hasLinesContaining() {
         LineAssert
-                .containsSubstrings(Arrays.asList("oo", "ba", "fo"))
+                .hasLinesContaining(Arrays.asList("oo", "ba", "fo"))
                 .line("foo")
                 .line("bar")
                 .assertSatisfied();
 
-        Assertions.assertThatThrownBy(LineAssert.containsSubstrings(Arrays.asList("foo", "bar"))
+        Assertions.assertThatThrownBy(LineAssert.hasLinesContaining(Arrays.asList("foo", "bar"))
                 .line("ma")
                 .line("az")::assertSatisfied)
                 .isInstanceOf(AssertionError.class)
@@ -69,14 +69,14 @@ public class LineAssertTest {
     }
 
     @Test
-    void doesNotContainSubstrings() {
+    void doesNotHaveLinesContaining() {
         LineAssert
-                .doesNotContainSubstrings(Arrays.asList("baz", "bam"))
+                .doesNotHaveLinesContaining(Arrays.asList("baz", "bam"))
                 .line("ma")
                 .line("az")
                 .assertSatisfied();
 
-        Assertions.assertThatThrownBy(LineAssert.doesNotContainSubstrings(Arrays.asList("oo"))
+        Assertions.assertThatThrownBy(LineAssert.doesNotHaveLinesContaining(Arrays.asList("oo"))
                 .line("maz")
                 .line("foo")::assertSatisfied)
                 .isInstanceOf(AssertionError.class)
@@ -86,16 +86,16 @@ public class LineAssertTest {
     }
 
     @Test
-    void containsMatchingPatterns() {
+    void hasLinesMatchingPatterns() {
         LineAssert
-                .containsMatchingPatterns(Arrays.asList(Pattern.compile("o+", Pattern.CASE_INSENSITIVE)))
+                .hasLinesMatchingPatterns(Arrays.asList(Pattern.compile("o+", Pattern.CASE_INSENSITIVE)))
                 .line("FOO")
                 .line("bar")
                 .assertSatisfied();
 
         Assertions
                 .assertThatThrownBy(LineAssert
-                        .containsMatchingPatterns(Arrays.asList(Pattern.compile("o+", Pattern.CASE_INSENSITIVE),
+                        .hasLinesMatchingPatterns(Arrays.asList(Pattern.compile("o+", Pattern.CASE_INSENSITIVE),
                                 Pattern.compile("b.*", Pattern.CASE_INSENSITIVE)))
                         .line("ma")
                         .line("az")::assertSatisfied)
@@ -106,15 +106,15 @@ public class LineAssertTest {
     }
 
     @Test
-    void containsMatching() {
+    void hasLinesMatching() {
         LineAssert
-                .containsMatching(Arrays.asList("O+"))
+                .hasLinesMatching(Arrays.asList("O+"))
                 .line("FOO")
                 .line("bar")
                 .assertSatisfied();
 
         Assertions.assertThatThrownBy(
-                LineAssert.containsMatching(
+                LineAssert.hasLinesMatching(
                         Arrays.asList("o+", "b.*"))
                         .line("ma")
                         .line("az")::assertSatisfied)
@@ -125,14 +125,14 @@ public class LineAssertTest {
     }
 
     @Test
-    void doesNotContainMatchingPatterns() {
+    void doesNotHaveLinesMatchingPatterns() {
         LineAssert
-                .doesNotContainMatchingPatterns(Arrays.asList(Pattern.compile("b.z")))
+                .doesNotHaveLinesMatchingPatterns(Arrays.asList(Pattern.compile("b.z")))
                 .line("ma")
                 .line("az")
                 .assertSatisfied();
 
-        Assertions.assertThatThrownBy(LineAssert.doesNotContainMatchingPatterns(Arrays.asList(Pattern.compile("o+")))
+        Assertions.assertThatThrownBy(LineAssert.doesNotHaveLinesMatchingPatterns(Arrays.asList(Pattern.compile("o+")))
                 .line("maz")
                 .line("foo")::assertSatisfied)
                 .isInstanceOf(AssertionError.class)
@@ -141,14 +141,14 @@ public class LineAssertTest {
     }
 
     @Test
-    void doesNotContainMatching() {
+    void doesNotHaveLinesMatching() {
         LineAssert
-                .doesNotContainMatching(Arrays.asList("b.z"))
+                .doesNotHaveLinesMatching(Arrays.asList("b.z"))
                 .line("ma")
                 .line("az")
                 .assertSatisfied();
 
-        Assertions.assertThatThrownBy(LineAssert.doesNotContainMatching(Arrays.asList("o+"))
+        Assertions.assertThatThrownBy(LineAssert.doesNotHaveLinesMatching(Arrays.asList("o+"))
                 .line("maz")
                 .line("foo")::assertSatisfied)
                 .isInstanceOf(AssertionError.class)
@@ -157,14 +157,14 @@ public class LineAssertTest {
     }
 
     @Test
-    void hasCount() {
+    void hasLineCount() {
         LineAssert
-                .hasCount(2)
+                .hasLineCount(2)
                 .line("ma")
                 .line("az")
                 .assertSatisfied();
 
-        Assertions.assertThatThrownBy(LineAssert.hasCount(3)
+        Assertions.assertThatThrownBy(LineAssert.hasLineCount(3)
                 .line("maz")
                 .line("foo")::assertSatisfied)
                 .isInstanceOf(AssertionError.class)

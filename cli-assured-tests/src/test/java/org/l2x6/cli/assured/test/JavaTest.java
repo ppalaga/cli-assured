@@ -25,7 +25,7 @@ public class JavaTest {
     void stdout() {
 
         run("hello", "Joe")
-                .contains("Hello Joe")
+                .hasLines("Hello Joe")
                 .start()
                 .awaitTermination()
                 .assertSuccess();
@@ -34,7 +34,7 @@ public class JavaTest {
             command("hello", "Joe")
                     .expect()
                     .stderr()
-                    .contains("Hello Joe")
+                    .hasLines("Hello Joe")
                     .start()
                     .awaitTermination()
                     .assertSuccess();
@@ -51,7 +51,7 @@ public class JavaTest {
                 .expect()
                 .stderrToStdout()
                 .stdout()
-                .contains("Hello stderr Joe")
+                .hasLines("Hello stderr Joe")
                 .start()
                 .awaitTermination()
                 .assertSuccess();
@@ -71,14 +71,14 @@ public class JavaTest {
         command("helloErr", "Joe")
                 .expect()
                 .stderr()
-                .contains("Hello stderr Joe")
+                .hasLines("Hello stderr Joe")
                 .start()
                 .awaitTermination()
                 .assertSuccess();
 
         try {
             run("helloErr", "Joe")
-                    .contains("Hello stderr Joe")
+                    .hasLines("Hello stderr Joe")
                     .start()
                     .awaitTermination()
                     .assertSuccess();
@@ -92,8 +92,8 @@ public class JavaTest {
     void timeout() {
 
         run("sleep", "500")
-                .contains("About to sleep for 500 ms")
-                .hasCount(1)
+                .hasLines("About to sleep for 500 ms")
+                .hasLineCount(1)
                 .start()
                 .awaitTermination(200)
                 .assertTimeout();
@@ -102,8 +102,8 @@ public class JavaTest {
     @Test
     void hasLineContaining() {
         run("hello", "Joe")
-                .containsSubstrings("lo J")
-                .hasCount(1)
+                .hasLinesContaining("lo J")
+                .hasLineCount(1)
                 .start()
                 .awaitTermination()
                 .assertSuccess();
@@ -112,7 +112,7 @@ public class JavaTest {
             command("hello", "Joe")
                     .expect()
                     .stderr()
-                    .containsSubstrings("lo J")
+                    .hasLinesContaining("lo J")
                     .start()
                     .awaitTermination()
                     .assertSuccess();
@@ -125,8 +125,8 @@ public class JavaTest {
     @Test
     void hasLineMatching() {
         run("hello", "Joe")
-                .containsMatching("lo J.e")
-                .hasCount(1)
+                .hasLinesMatching("lo J.e")
+                .hasLineCount(1)
                 .start()
                 .awaitTermination()
                 .assertSuccess();
@@ -135,7 +135,7 @@ public class JavaTest {
             command("hello", "Joe")
                     .expect()
                     .stderr()
-                    .containsMatching("lo J.e")
+                    .hasLinesMatching("lo J.e")
                     .start()
                     .awaitTermination()
                     .assertSuccess();
@@ -147,22 +147,22 @@ public class JavaTest {
     @Test
     void doesNotHaveLine() {
         run("hello", "Joe")
-                .doesNotContain("Hello John")
-                .hasCount(1)
+                .doesNotHaveLines("Hello John")
+                .hasLineCount(1)
                 .start()
                 .awaitTermination()
                 .assertSuccess();
 
         runErr("helloErr", "Joe")
-                .doesNotContain("Hello John")
-                .hasCount(1)
+                .doesNotHaveLines("Hello John")
+                .hasLineCount(1)
                 .start()
                 .awaitTermination()
                 .assertSuccess();
 
         try {
             run("hello", "Joe")
-                    .doesNotContain("Hello Joe")
+                    .doesNotHaveLines("Hello Joe")
                     .start()
                     .awaitTermination()
                     .assertSuccess();
@@ -171,7 +171,7 @@ public class JavaTest {
         }
         try {
             runErr("helloErr", "Joe")
-                    .doesNotContain("Hello Joe")
+                    .doesNotHaveLines("Hello Joe")
                     .start()
                     .awaitTermination()
                     .assertSuccess();
@@ -184,15 +184,15 @@ public class JavaTest {
     @Test
     void doesNotHaveLineContaining() {
         run("hello", "Joe")
-                .doesNotContainSubstrings("John")
-                .hasCount(1)
+                .doesNotHaveLinesContaining("John")
+                .hasLineCount(1)
                 .start()
                 .awaitTermination()
                 .assertSuccess();
 
         try {
             run("hello", "Joe")
-                    .doesNotContainSubstrings("Joe")
+                    .doesNotHaveLinesContaining("Joe")
                     .start()
                     .awaitTermination()
                     .assertSuccess();
@@ -202,7 +202,7 @@ public class JavaTest {
 
         try {
             runErr("helloErr", "Joe")
-                    .doesNotContainSubstrings("Joe")
+                    .doesNotHaveLinesContaining("Joe")
                     .start()
                     .awaitTermination()
                     .assertSuccess();
@@ -214,15 +214,15 @@ public class JavaTest {
     @Test
     void doesNotHaveLineMatching() {
         run("hello", "Joe")
-                .doesNotContainMatching("Hello M.*")
-                .hasCount(1)
+                .doesNotHaveLinesMatching("Hello M.*")
+                .hasLineCount(1)
                 .start()
                 .awaitTermination()
                 .assertSuccess();
 
         try {
             run("hello", "Joe")
-                    .doesNotContainMatching("lo Jo.*")
+                    .doesNotHaveLinesMatching("lo Jo.*")
                     .start()
                     .awaitTermination()
                     .assertSuccess();
@@ -233,7 +233,7 @@ public class JavaTest {
 
         try {
             runErr("helloErr", "Joe")
-                    .doesNotContainMatching("lo Jo.*")
+                    .doesNotHaveLinesMatching("lo Jo.*")
                     .start()
                     .awaitTermination()
                     .assertSuccess();
@@ -252,9 +252,9 @@ public class JavaTest {
                 .cd(cd)
                 .expect()
                 .stdout()
-                .hasCount(0)
+                .hasLineCount(0)
                 .stderr()
-                .hasCount(0)
+                .hasLineCount(0)
                 .start()
                 .awaitTermination()
                 .assertSuccess();
