@@ -33,7 +33,7 @@ import org.l2x6.cli.assured.CliAssured;
 CliAssured.command("echo", "CLI Assured rocks!")
     .expect()
     .stderrToStdout() // redirect stderr to stdout
-    .stdout() // Assertions for stdout follow (the same can be done with stderr())
+    .stdout() // Assertions for stdout follow (the same can be done with stderr(), in case you didn't call stderrToStdout())
     .hasLines("CLI Assured rocks!")
     .hasLinesContaining("rocks")
     .hasLinesMatching("CLI.*rocks")
