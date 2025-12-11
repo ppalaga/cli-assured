@@ -195,7 +195,8 @@ public class StreamExpectations implements LineAssert {
         }
 
         /**
-         * Assert that upon termination of the associated process, the underlying output stream has produced the given number of bytes.
+         * Assert that upon termination of the associated process, the underlying output stream has produced the given number of
+         * bytes.
          *
          * @param  expectedByteCount the number of bytes to enforce
          * @return                   this {@link Builder}

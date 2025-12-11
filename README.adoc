@@ -28,19 +28,21 @@ Find the latest version on https://central.sonatype.com/artifact/org.l2x6.cli-as
 [source,java]
 ----
 import org.l2x6.cli.assured.CliAssured;
-...
 
-CliAssured.command("echo", "CLI Assured rocks!")
+CliAssured
+    .command("echo", "CLI Assured rocks!")
     .expect()
     .stderrToStdout() // redirect stderr to stdout
-    .stdout() // Assertions for stdout follow (the same can be done with stderr())
-    .hasLines("CLI Assured rocks!")
-    .hasLinesContaining("rocks")
-    .hasLinesMatching("CLI.*rocks")
-    .doesNotHaveLinesContainingCaseInsensitive("error")
-    .hasLineCount(1)
-    .redirect(Path.of("hello.txt")) // redirect the output to hello.txt
-    // End of assertions for stdout
+    .stdout() // Assertions for stdout
+              // The same can be done with stderr(),
+              // in case you didn't call stderrToStdout()
+        .hasLines("CLI Assured rocks!")
+        .hasLinesContaining("rocks")
+        .hasLinesMatching("CLI.*rocks")
+        .doesNotHaveLinesContainingCaseInsensitive("error")
+        .hasLineCount(1)
+        .redirect(Path.of("hello.txt")) // redirect the output to hello.txt
+        // End of assertions for stdout
     .exitCode(0) // could be omitted as exit code 0 is enforced by default
     .start()
     .awaitTermination()
