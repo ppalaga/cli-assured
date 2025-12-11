@@ -27,10 +27,8 @@ Find the latest version on https://central.sonatype.com/artifact/org.l2x6.cli-as
 
 [source,java]
 ----
-import org.l2x6.cli.assured.CliAssured;
-...
-
-CliAssured.command("echo", "CLI Assured rocks!")
+org.l2x6.cli.assured.CliAssured
+    .command("echo", "CLI Assured rocks!")
     .expect()
     .stderrToStdout() // redirect stderr to stdout
     .stdout() // Assertions for stdout follow (the same can be done with stderr(), in case you didn't call stderrToStdout())
