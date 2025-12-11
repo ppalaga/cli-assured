@@ -167,7 +167,8 @@ public class StreamExpectations implements LineAssert {
         }
 
         /**
-         * Assert that upon termination of the associated process, the underlying output stream has the given number of lines.
+         * Assert that upon termination of the associated process, the underlying output stream has produced the given
+         * number of lines.
          *
          * @param  expectedLineCount
          * @return                   this {@link Builder}
@@ -194,14 +195,14 @@ public class StreamExpectations implements LineAssert {
         }
 
         /**
-         * Assert that upon termination of the associated process, the underlying output stream has the given number of lines.
+         * Assert that upon termination of the associated process, the underlying output stream has produced the given number of bytes.
          *
-         * @param  expectedLineCount
+         * @param  expectedByteCount the number of bytes to enforce
          * @return                   this {@link Builder}
          * @since                    0.0.1
          */
-        public Builder hasByteCount(long expectedLineCount) {
-            this.byteCountAssert = ByteCountAssert.hasByteCount(expectedLineCount);
+        public Builder hasByteCount(long expectedByteCount) {
+            this.byteCountAssert = ByteCountAssert.hasByteCount(expectedByteCount);
             return this;
         }
 
@@ -217,6 +218,19 @@ public class StreamExpectations implements LineAssert {
          */
         public Builder hasByteCount(Predicate<Long> expected, String description) {
             this.byteCountAssert = ByteCountAssert.hasByteCount(expected, description);
+            return this;
+        }
+
+        /**
+         * Assert that upon termination of the associated process, the underlying output stream has produced zero bytes.
+         * An equivalent of {@link #hasByteCount(long) hasByteCount(0)}.
+         *
+         * @param  expectedLineCount
+         * @return                   this {@link Builder}
+         * @since                    0.0.1
+         */
+        public Builder isEmpty() {
+            this.byteCountAssert = ByteCountAssert.hasByteCount(0);
             return this;
         }
 
