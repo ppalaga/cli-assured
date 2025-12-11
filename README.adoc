@@ -31,19 +31,42 @@ import org.l2x6.cli.assured.CliAssured;
 ...
 
 CliAssured.command("echo", "CLI Assured rocks!")
+    .expect()
+    .stderrToStdout() // redirect stderr to stdout
+    .stdout() // Assertions for stdout follow (the same can be done with stderr())
+    .hasLines("CLI Assured rocks!")
+    .hasLinesContaining("rocks")
+    .hasLinesMatching("CLI.*rocks")
+    .doesNotHaveLinesContainingCaseInsensitive("error")
+    .hasLineCount(1)
+    .redirect(Path.of("hello.txt")) // redirect the output to hello.txt
+    // End of assertions for stdout
+    .exitCode(0) // could be omitted as exit code 0 is enforced by default
+    .start()
     .awaitTermination()
-    .assertSuccess()
-    .output()
-    .hasLine("CLI Assured rocks!")
-    .hasLineContaining("rocks")
-    .hasLineMatching("CLI.*rocks")
-    .doesNotHaveLineContaining("ERROR")
-    .hasLineCount(1);
+    .assertSuccess(); // Report all assertion errors
 ----
 
-=== Test a java program
+=== `CliAssured.java()` - call the `java` executable of the current JVM
 
-Having a simple Java program
+Sometimes it comes in handy to call the `java` executable of the current JVM.
+
+For example
+
+[source,java]
+----
+import org.l2x6.cli.assured.CliAssured;
+...
+
+CliAssured
+    .java()
+    .args("-jar", "path/to/my.jar")
+    .start()
+    .awaitTermination()
+    .assertSuccess();
+----
+
+Or if you want to compile and run a single java file, such as
 
 [source,java]
 .Hello.java
@@ -55,7 +78,7 @@ public class Hello {
 }
 ----
 
-it can be tested as follows
+it can be done as follows
 
 [source,java]
 ----
@@ -65,10 +88,9 @@ import org.l2x6.cli.assured.CliAssured;
 CliAssured
     .java()
     .args("path/to/Hello.java", "Joe")
+    .stdout() // Assertions for stdout follow (the same can be done with stderr())
+    .hasLines("Hello Joe")
+    .start()
     .awaitTermination()
-    .assertSuccess()
-    .output()
-    .hasLine("Hello Joe")
-    .hasLineCount(1);
+    .assertSuccess();
 ----
-
