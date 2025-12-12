@@ -5,6 +5,7 @@
 package org.l2x6.cli.assured;
 
 import java.io.InputStream;
+import java.time.Duration;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.regex.Pattern;
@@ -119,14 +120,61 @@ public class Expectations {
         }
 
         /**
-         * Build new {@link Expectations}, pass them to the parent {@link Command.Builder} and start the process.
+         * Build new {@link Expectations}, pass them to the parent {@link Command.Builder}
          * and start the command.
          *
          * @return a new {@link CommandProcess}
          * @since  0.0.1
+         * @see    #execute()
          */
         public CommandProcess start() {
-            return command.expect(build()).start();
+            return parent().start();
+        }
+
+        /**
+         * Build new {@link Expectations}, pass them to the parent {@link Command.Builder},
+         * start the {@link CommandProcess} and awaits (potentially indefinitely) its termination.
+         * A shorthand for {@link #start()}.{@link CommandProcess#awaitTermination() awaitTermination()}
+         *
+         * @return a {@link CommandResult}
+         * @since  0.0.1
+         */
+        public CommandResult execute() {
+            return parent().execute();
+        }
+
+        /**
+         * Build new {@link Expectations}, pass them to the parent {@link Command.Builder} and the {@link CommandProcess} and
+         * awaits (potentially indefinitely) its termination at most for the specified
+         * duration.
+         * A shorthand for {@link #start()}.{@link CommandProcess#awaitTermination(Duration) awaitTermination(Duration)}
+         *
+         * @param  timeout maximum time to wait for the underlying process to terminate
+         *
+         * @return         a {@link CommandResult}
+         * @since          0.0.1
+         */
+        public CommandResult execute(Duration timeout) {
+            return parent().execute(timeout);
+        }
+
+        /**
+         * Build new {@link Expectations}, pass them to the parent {@link Command.Builder} and the {@link CommandProcess} and
+         * awaits (potentially indefinitely) its termination at most for the specified
+         * timeout in milliseconds.
+         * A shorthand for {@link #start()}.{@link CommandProcess#awaitTermination(Duration) awaitTermination(Duration)}
+         *
+         * @param  timeoutMs maximum time in milliseconds to wait for the underlying process to terminate
+         *
+         * @return           a {@link CommandResult}
+         * @since            0.0.1
+         */
+        public CommandResult execute(long timeoutMs) {
+            return parent().execute(timeoutMs);
+        }
+
+        Command.Builder parent() {
+            return command.expect(build());
         }
 
     }

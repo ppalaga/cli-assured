@@ -390,6 +390,55 @@ public class JavaTest {
 
     }
 
+    @Test
+    void execute() throws IOException {
+        Path cd = Paths.get("target/JavaTest-minimalExecute-" + UUID.randomUUID());
+        Files.createDirectories(cd);
+        command("write", "Hello minimalExecute", "hello.txt")
+                .cd(cd)
+                .execute()
+                .assertSuccess();
+        Assertions.assertThat(cd.resolve("hello.txt")).isRegularFile().hasContent("Hello minimalExecute");
+    }
+
+    @Test
+    void expectExecute() throws IOException {
+        Path cd = Paths.get("target/JavaTest-minimalExecute-" + UUID.randomUUID());
+        Files.createDirectories(cd);
+        command("write", "Hello minimalExecute", "hello.txt")
+                .cd(cd)
+                .expect()
+                .execute()
+                .assertSuccess();
+        Assertions.assertThat(cd.resolve("hello.txt")).isRegularFile().hasContent("Hello minimalExecute");
+    }
+
+    @Test
+    void expectStdoutExecute() throws IOException {
+        Path cd = Paths.get("target/JavaTest-minimalExecute-" + UUID.randomUUID());
+        Files.createDirectories(cd);
+        command("write", "Hello minimalExecute", "hello.txt")
+                .cd(cd)
+                .expect()
+                .stdout()
+                .execute()
+                .assertSuccess();
+        Assertions.assertThat(cd.resolve("hello.txt")).isRegularFile().hasContent("Hello minimalExecute");
+    }
+
+    @Test
+    void expectStderrExecute() throws IOException {
+        Path cd = Paths.get("target/JavaTest-minimalExecute-" + UUID.randomUUID());
+        Files.createDirectories(cd);
+        command("write", "Hello minimalExecute", "hello.txt")
+                .cd(cd)
+                .expect()
+                .stderr()
+                .execute()
+                .assertSuccess();
+        Assertions.assertThat(cd.resolve("hello.txt")).isRegularFile().hasContent("Hello minimalExecute");
+    }
+
     static StreamExpectations.Builder run(String... args) {
         return command(args)
                 .expect()
