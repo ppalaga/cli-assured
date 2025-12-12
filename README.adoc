@@ -45,8 +45,7 @@ CliAssured
         .redirect(Path.of("hello.txt")) // redirect the output to hello.txt
         // End of assertions for stdout
     .exitCode(0) // could be omitted as exit code 0 is enforced by default
-    .start()
-    .awaitTermination()
+    .execute()
     .assertSuccess(); // Report all assertion errors
 ----
 
@@ -64,8 +63,7 @@ import org.l2x6.cli.assured.CliAssured;
 CliAssured
     .java()
     .args("-jar", "path/to/my.jar")
-    .start()
-    .awaitTermination()
+    .execute()
     .assertSuccess();
 ----
 
@@ -93,7 +91,6 @@ CliAssured
     .args("path/to/Hello.java", "Joe")
     .stdout() // Assertions for stdout follow (the same can be done with stderr())
     .hasLines("Hello Joe")
-    .start()
-    .awaitTermination()
+    .execute()
     .assertSuccess();
 ----

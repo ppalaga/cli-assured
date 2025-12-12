@@ -52,11 +52,12 @@ public class Command {
     }
 
     /**
-     * Execute this {@link Command} and return a {@link CommandProcess}.
+     * Start this {@link Command} and return a running {@link CommandProcess}.
      *
      * @return a {@link CommandProcess}
      *
      * @since  0.0.1
+     * @see    #execute()
      */
     public CommandProcess start() {
         final boolean stderrToStdout = expectations.stderr == null;
@@ -81,35 +82,40 @@ public class Command {
 
     /**
      * Starts the command {@link Process} and awaits (potentially indefinitely) its termination.
+     * A shorthand for {@link #start()}.{@link CommandProcess#awaitTermination() awaitTermination()}
      *
      * @return a {@link CommandResult}
      * @since  0.0.1
      */
-    public CommandResult awaitTermination() {
+    public CommandResult execute() {
         return start().awaitTermination();
     }
 
     /**
-     * Starts the command {@link Process} and awaits its termination at most for the specified duration.
+     * Starts the command {@link Process} and awaits (potentially indefinitely) its termination at most for the specified
+     * duration.
+     * A shorthand for {@link #start()}.{@link CommandProcess#awaitTermination(Duration) awaitTermination(Duration)}
      *
      * @param  timeout maximum time to wait for the underlying process to terminate
      *
      * @return         a {@link CommandResult}
      * @since          0.0.1
      */
-    public CommandResult awaitTermination(Duration timeout) {
+    public CommandResult execute(Duration timeout) {
         return start().awaitTermination(timeout);
     }
 
     /**
-     * Starts the command {@link Process} and awaits its termination at most for the specified amount of milliseconds.
+     * Starts the command {@link Process} and awaits (potentially indefinitely) its termination at most for the specified
+     * timeout in milliseconds.
+     * A shorthand for {@link #start()}.{@link CommandProcess#awaitTermination(Duration) awaitTermination(Duration)}
      *
      * @param  timeoutMs maximum time in milliseconds to wait for the underlying process to terminate
      *
      * @return           a {@link CommandResult}
      * @since            0.0.1
      */
-    public CommandResult awaitTermination(long timeoutMs) {
+    public CommandResult execute(long timeoutMs) {
         return start().awaitTermination(timeoutMs);
     }
 
@@ -304,53 +310,66 @@ public class Command {
          *
          * @return a {@link CommandProcess}
          * @since  0.0.1
+         * @see    #execute()
          */
         public CommandProcess start() {
-            final List<String> args = Collections.unmodifiableList(this.args);
-            this.args = null;
-            final Map<String, String> env = Collections.unmodifiableMap(this.env);
-            this.env = null;
-            Command cmd = new Command(
-                    executable,
-                    args,
-                    env,
-                    cd == null ? Paths.get(".").toAbsolutePath().normalize() : cd,
-                    expectations);
-            return cmd.start();
+            return build().start();
         }
 
         /**
-         * A shorthand for {@link #start()}.{@link CommandProcess#awaitTermination() awaitTermination()}.
+         * Start the {@link CommandProcess} and await (potentially indefinitely) its termination.
+         * A shorthand for {@link #start()}.{@link CommandProcess#awaitTermination() awaitTermination()}
          *
          * @return a {@link CommandResult}
          * @since  0.0.1
          */
-        public CommandResult awaitTermination() {
-            return start().awaitTermination();
+        public CommandResult execute() {
+            return build().execute();
         }
 
         /**
-         * A shorthand for {@link #start()}.{@link CommandProcess#awaitTermination(Duration) awaitTermination(timeout)}.
+         * Start the {@link CommandProcess} and await (potentially indefinitely) its termination at most for the specified
+         * duration.
+         * A shorthand for {@link #start()}.{@link CommandProcess#awaitTermination(Duration) awaitTermination(Duration)}
          *
          * @param  timeout maximum time to wait for the underlying process to terminate
          *
          * @return         a {@link CommandResult}
          * @since          0.0.1
          */
-        public CommandResult awaitTermination(Duration timeout) {
-            return start().awaitTermination(timeout);
+        public CommandResult execute(Duration timeout) {
+            return build().execute(timeout);
         }
 
         /**
-         * A shorthand for {@link #start()}.{@link CommandProcess#awaitTermination(long) awaitTermination(timeoutMs)}.
+         * Start the {@link CommandProcess} and await (potentially indefinitely) its termination at most for the specified
+         * timeout in milliseconds.
+         * A shorthand for {@link #start()}.{@link CommandProcess#awaitTermination(Duration) awaitTermination(Duration)}
          *
          * @param  timeoutMs maximum time in milliseconds to wait for the underlying process to terminate
          *
          * @return           a {@link CommandResult}
          * @since            0.0.1
          */
-        public CommandResult awaitTermination(long timeoutMs) {
-            return start().awaitTermination(timeoutMs);
+        public CommandResult execute(long timeoutMs) {
+            return build().execute(timeoutMs);
+        }
+
+        Command build() {
+            final List<String> args = Collections.unmodifiableList(this.args);
+            this.args = null;
+            final Map<String, String> env = Collections.unmodifiableMap(this.env);
+            this.env = null;
+            if (expectations == null) {
+                expect().parent();
+            }
+            Command cmd = new Command(
+                    executable,
+                    args,
+                    env,
+                    cd == null ? Paths.get(".").toAbsolutePath().normalize() : cd,
+                    expectations);
+            return cmd;
         }
 
     }

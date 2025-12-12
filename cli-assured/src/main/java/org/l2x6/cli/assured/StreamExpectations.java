@@ -13,6 +13,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -501,6 +502,86 @@ public class StreamExpectations implements LineAssert {
             return this;
         }
 
+        /**
+         * Assert that the process exits with any the given {@code expectedExitCodes},
+         * build new {@link StreamExpectations} and set it on the parent {@link Expectations.Builder}
+         *
+         * @param  expectedExitCodes the exit codes to assert
+         * @return                   the parent {@link Expectations.Builder}
+         * @since                    0.0.1
+         */
+        public Expectations.Builder exitCode(int... expectedExitCodes) {
+            return parent().exitCode(expectedExitCodes);
+        }
+
+        /**
+         * A shorthand for {@link #parent()}..{@link Expectations.Builder#stderr() stderr()}
+         *
+         * @return a new {@link OutputConsumer.Builder} to configure assertions for stderr
+         * @since  0.0.1
+         */
+        public Builder stderr() {
+            return parent().stderr();
+        }
+
+        /**
+         * Build new {@link StreamExpectations} from this {@link Builder}, pass it to the parent
+         * {@link Expectations.Builder}, pass them to the parent {@link Command.Builder}
+         * and start the command.
+         *
+         * @return a started {@link CommandProcess}
+         * @since  0.0.1
+         * @see    #execute()
+         */
+        public CommandProcess start() {
+            return parent().start();
+        }
+
+        /**
+         * Build new {@link StreamExpectations} from this {@link Builder}, pass it to the parent
+         * {@link Expectations.Builder}, pass them to the parent {@link Command.Builder},
+         * the {@link CommandProcess} and await (potentially indefinitely) its termination.
+         * A shorthand for {@link #start()}.{@link CommandProcess#awaitTermination() awaitTermination()}
+         *
+         * @return a {@link CommandResult}
+         * @since  0.0.1
+         */
+        public CommandResult execute() {
+            return parent().execute();
+        }
+
+        /**
+         * Build new {@link StreamExpectations} from this {@link Builder}, pass it to the parent
+         * {@link Expectations.Builder}, pass them to the parent {@link Command.Builder},
+         * start the {@link CommandProcess} and await (potentially indefinitely) its termination at most for the specified
+         * duration.
+         * A shorthand for {@link #start()}.{@link CommandProcess#awaitTermination(Duration) awaitTermination(Duration)}
+         *
+         * @param  timeout maximum time to wait for the underlying process to terminate
+         *
+         * @return         a {@link CommandResult}
+         * @since          0.0.1
+         */
+        public CommandResult execute(Duration timeout) {
+            return parent().execute(timeout);
+        }
+
+        /**
+         * Build new {@link StreamExpectations} from this {@link Builder}, pass it to the parent
+         * {@link Expectations.Builder}, pass them to the parent {@link Command.Builder},
+         * the {@link CommandProcess} and await (potentially indefinitely) its termination at most for the specified
+         * timeout in milliseconds.
+         * A shorthand for {@link #start()}.{@link CommandProcess#awaitTermination(Duration) awaitTermination(Duration)}
+         *
+         * @param  timeoutMs maximum time in milliseconds to wait for the underlying process to terminate
+         *
+         * @return           a {@link CommandResult}
+         * @since            0.0.1
+         */
+        public CommandResult execute(long timeoutMs) {
+            return parent().execute(timeoutMs);
+        }
+
         Function<InputStream, OutputConsumer> build() {
             List<LineAssert> as = Collections.unmodifiableList(asserts);
             this.asserts = null;
@@ -520,37 +601,6 @@ public class StreamExpectations implements LineAssert {
             return expectations.apply(build());
         }
 
-        /**
-         * Assert that the process exits with any the given {@code expectedExitCodes},
-         * build new {@link StreamExpectations} and set it on the parent {@link Expectations.Builder}
-         *
-         * @param  expectedExitCodes the exit codes to assert
-         * @return                   the parent {@link Expectations.Builder}
-         * @since                    0.0.1
-         */
-        public Expectations.Builder exitCode(int... expectedExitCodes) {
-            return parent().exitCode(expectedExitCodes);
-        }
-
-        /**
-         * A shorthand for {@link #parent()}..{@link Expectations.Builder#start() start()}
-         *
-         * @return a started {@link CommandProcess}
-         * @since  0.0.1
-         */
-        public CommandProcess start() {
-            return parent().start();
-        }
-
-        /**
-         * A shorthand for {@link #parent()}..{@link Expectations.Builder#stderr() stderr()}
-         *
-         * @return a new {@link OutputConsumer.Builder} to configure assertions for stderr
-         * @since  0.0.1
-         */
-        public Builder stderr() {
-            return parent().stderr();
-        }
     }
 
     static class NonClosingOut extends FilterOutputStream {
