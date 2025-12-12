@@ -52,8 +52,8 @@ public class JavaTest {
     void stderrToStdout() {
 
         command("helloErr", "Joe")
-                .expect()
                 .stderrToStdout()
+                .expect()
                 .stdout()
                 .hasLines("Hello stderr Joe")
                 .start()
@@ -61,8 +61,8 @@ public class JavaTest {
                 .assertSuccess();
 
         Assertions.assertThatThrownBy(command("helloErr", "Joe")
-                .expect()
-                .stderrToStdout()::stderr)
+                .stderrToStdout()
+                .expect()::stderr)
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessage(
                         "You cannot set any assertions on stderr while you are redirecting stderr to stdout");

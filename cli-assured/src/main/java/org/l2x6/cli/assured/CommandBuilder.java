@@ -26,6 +26,7 @@ public class CommandBuilder {
     private List<String> args = new ArrayList<>();
     private Map<String, String> env = new LinkedHashMap<>();
     private Path cd;
+    boolean stderrToStdout;
     private Expectations expectations;
 
     CommandBuilder() {
@@ -170,6 +171,17 @@ public class CommandBuilder {
      */
     public CommandBuilder cd(Path workDirectory) {
         this.cd = workDirectory;
+        return this;
+    }
+
+    /**
+     * Enable the redirection of {@code stderr} to {@code stdout}
+     *
+     * @return this {@link CommandBuilder}
+     * @since  0.0.1
+     */
+    public CommandBuilder stderrToStdout() {
+        this.stderrToStdout |= true;
         return this;
     }
 

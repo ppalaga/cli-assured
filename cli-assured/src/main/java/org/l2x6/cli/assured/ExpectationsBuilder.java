@@ -26,8 +26,6 @@ public class ExpectationsBuilder {
     private Function<InputStream, OutputConsumer> stderrAsserts;
     private ExitCodeAssert exitCodeAssert;
 
-    private boolean stderrToStdout;
-
     ExpectationsBuilder(org.l2x6.cli.assured.CommandBuilder command) {
         this.command = command;
     }
@@ -45,22 +43,11 @@ public class ExpectationsBuilder {
      * @since  0.0.1
      */
     public StreamExpectationsBuilder stderr() {
-        if (stderrToStdout) {
+        if (command.stderrToStdout) {
             throw new IllegalStateException(
                     "You cannot set any assertions on stderr while you are redirecting stderr to stdout");
         }
         return new StreamExpectationsBuilder(this::stderr, Stream.stderr);
-    }
-
-    /**
-     * Enable the redirection of {@code stderr} to {@code stdout}
-     *
-     * @return this {@link ExpectationsBuilder}
-     * @since  0.0.1
-     */
-    public ExpectationsBuilder stderrToStdout() {
-        this.stderrToStdout |= true;
-        return this;
     }
 
     /**
@@ -90,7 +77,7 @@ public class ExpectationsBuilder {
             Expectations.log.debug("stdout will be ignored because no consumer was specified for it");
             stdoutAsserts = in -> new DevNull(in, Stream.stdout);
         }
-        if (stderrAsserts == null && !stderrToStdout) {
+        if (stderrAsserts == null && !command.stderrToStdout) {
             Expectations.log.debug("Any output to stderr will cause an error because no consumer was specified for it");
             stderrAsserts = stderr().doesNotHaveLinesMatching(MATCH_ANY_PATTERN).build();
         }
