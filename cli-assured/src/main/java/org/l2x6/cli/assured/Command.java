@@ -21,12 +21,12 @@ import org.slf4j.LoggerFactory;
  * @since  0.0.1
  * @author <a href="https://github.com/ppalaga">Peter Palaga</a>
  */
-public class Command {
+class Command {
     static final org.slf4j.Logger log = LoggerFactory.getLogger(Command.class);
 
     private final Map<String, String> env;
     private final Path cd;
-    final String[] cmdArray;
+    private final String[] cmdArray;
     final String cmdArrayString;
     final Expectations expectations;
 

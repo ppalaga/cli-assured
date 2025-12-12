@@ -32,18 +32,13 @@ import org.l2x6.cli.assured.asserts.ByteCountAssert;
 import org.l2x6.cli.assured.asserts.LineAssert;
 import org.slf4j.LoggerFactory;
 
+/**
+ * A {@link StreamExpectations} builder.
+ *
+ * @since  0.0.1
+ * @author <a href="https://github.com/ppalaga">Peter Palaga</a>
+ */
 public class StreamExpectationsBuilder {
-    static class NonClosingOut extends FilterOutputStream {
-
-        public NonClosingOut(OutputStream out) {
-            super(out);
-        }
-
-        @Override
-        public void close() throws IOException {
-            /* The caller is responsible for closing */
-        }
-    }
 
     private final Function<Function<InputStream, OutputConsumer>, ExpectationsBuilder> expectations;
     private final OutputConsumer.Stream stream;
@@ -559,6 +554,18 @@ public class StreamExpectationsBuilder {
      */
     ExpectationsBuilder parent() {
         return expectations.apply(build());
+    }
+
+    static class NonClosingOut extends FilterOutputStream {
+
+        public NonClosingOut(OutputStream out) {
+            super(out);
+        }
+
+        @Override
+        public void close() throws IOException {
+            /* The caller is responsible for closing */
+        }
     }
 
 }

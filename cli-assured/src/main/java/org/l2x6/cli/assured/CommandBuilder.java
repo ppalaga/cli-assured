@@ -15,6 +15,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * A {@link Command} builder.
+ *
+ * @since  0.0.1
+ * @author <a href="https://github.com/ppalaga">Peter Palaga</a>
+ */
 public class CommandBuilder {
     private String executable;
     private List<String> args = new ArrayList<>();

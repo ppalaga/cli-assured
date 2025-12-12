@@ -12,7 +12,22 @@ import java.util.function.Predicate;
  * @author <a href="https://github.com/ppalaga">Peter Palaga</a>
  * @since  0.0.1
  */
-public interface ByteCountAssert extends Assert {
+public class ByteCountAssert implements Assert {
+    private final Predicate<Long> expected;
+    private volatile long actualCount;
+    private final String description;
+
+    private ByteCountAssert(Predicate<Long> expected, String description) {
+        this.expected = expected;
+        this.description = description;
+    }
+
+    @Override
+    public void assertSatisfied() {
+        if (!expected.test(actualCount)) {
+            throw new AssertionError(String.format(description, actualCount));
+        }
+    }
 
     /**
      * Record the actual number of bytes and throw any {@link AssertionError}s from {@link #assertSatisfied()} rather than
@@ -22,7 +37,10 @@ public interface ByteCountAssert extends Assert {
      * @return           this {@link ByteCountAssert}
      * @since            0.0.1
      */
-    ByteCountAssert byteCount(long byteCount);
+    public ByteCountAssert byteCount(long actualCount) {
+        this.actualCount = actualCount;
+        return this;
+    }
 
     /**
      * Assert that upon termination of the associated process, the underlying output stream has produced the given number of
@@ -32,8 +50,8 @@ public interface ByteCountAssert extends Assert {
      * @return                   a new {@link ByteCountAssert}
      * @since                    0.0.1
      */
-    static ByteCountAssert hasByteCount(long expectedByteCount) {
-        return new BytesCountAssert(actual -> actual.longValue() == expectedByteCount,
+    public static ByteCountAssert hasByteCount(long expectedByteCount) {
+        return new ByteCountAssert(actual -> actual.longValue() == expectedByteCount,
                 "Expected " + expectedByteCount + " bytes but found %d bytes");
     }
 
@@ -48,31 +66,7 @@ public interface ByteCountAssert extends Assert {
      * @since              0.0.1
      */
     public static ByteCountAssert hasByteCount(Predicate<Long> expected, String description) {
-        return new BytesCountAssert(expected, description);
-    }
-
-    static class BytesCountAssert implements ByteCountAssert {
-        private final Predicate<Long> expected;
-        private volatile long actualCount;
-        private final String description;
-
-        BytesCountAssert(Predicate<Long> expected, String description) {
-            this.expected = expected;
-            this.description = description;
-        }
-
-        @Override
-        public void assertSatisfied() {
-            if (!expected.test(actualCount)) {
-                throw new AssertionError(String.format(description, actualCount));
-            }
-        }
-
-        @Override
-        public ByteCountAssert byteCount(long actualCount) {
-            this.actualCount = actualCount;
-            return this;
-        }
+        return new ByteCountAssert(expected, description);
     }
 
 }
