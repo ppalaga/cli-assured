@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 import org.l2x6.cli.assured.asserts.Assert;
 
-public abstract class OutputConsumer extends Thread implements Assert {
+abstract class OutputConsumer extends Thread implements Assert {
     protected volatile boolean cancelled;
     protected List<Throwable> exceptions = new ArrayList<>();
     protected final InputStream in;
@@ -52,11 +52,11 @@ public abstract class OutputConsumer extends Thread implements Assert {
         return byteCount.get();
     }
 
-    public static enum Stream {
+    static enum Stream {
         stdout, stderr
     }
 
-    public static class DevNull extends OutputConsumer {
+    static class DevNull extends OutputConsumer {
 
         public DevNull(InputStream in, Stream stream) {
             super(in, stream);
@@ -77,7 +77,7 @@ public abstract class OutputConsumer extends Thread implements Assert {
 
     }
 
-    public static class OutputAsserts extends OutputConsumer {
+    static class OutputAsserts extends OutputConsumer {
         private final StreamExpectations streamExpectations;
 
         OutputAsserts(InputStream inputStream, StreamExpectations streamExpectations) {

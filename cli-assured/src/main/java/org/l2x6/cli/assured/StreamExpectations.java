@@ -12,7 +12,7 @@ import java.util.function.Supplier;
 import org.l2x6.cli.assured.asserts.ByteCountAssert;
 import org.l2x6.cli.assured.asserts.LineAssert;
 
-public class StreamExpectations implements LineAssert {
+class StreamExpectations implements LineAssert {
 
     private final List<LineAssert> lineAsserts;
     private final ByteCountAssert byteCountAssert;

@@ -12,6 +12,12 @@ import org.l2x6.cli.assured.OutputConsumer.DevNull;
 import org.l2x6.cli.assured.OutputConsumer.Stream;
 import org.l2x6.cli.assured.asserts.ExitCodeAssert;
 
+/**
+ * An {@link Expectations} builder.
+ *
+ * @since  0.0.1
+ * @author <a href="https://github.com/ppalaga">Peter Palaga</a>
+ */
 public class ExpectationsBuilder {
     private static final Pattern MATCH_ANY_PATTERN = Pattern.compile(".*");
 

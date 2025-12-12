@@ -49,7 +49,7 @@ public interface LineAssert extends Assert {
      * @since        0.0.1
      */
     static LineAssert hasLines(Collection<String> lines) {
-        return new LinesAssert<String, String>(
+        return new Internal.LinesAssert<String, String>(
                 Collections.unmodifiableList(new ArrayList<>(lines)),
                 new LinkedHashSet<>(lines),
                 (line, hits) -> hits.remove(line),
@@ -65,7 +65,7 @@ public interface LineAssert extends Assert {
      */
     static LineAssert doesNotHaveLines(Collection<String> lines) {
         final Set<String> checks = Collections.unmodifiableSet(new LinkedHashSet<>(lines));
-        return new LinesAssert<String, String>(
+        return new Internal.LinesAssert<String, String>(
                 checks,
                 new LinkedHashSet<>(),
                 (line, hits) -> {
@@ -85,7 +85,7 @@ public interface LineAssert extends Assert {
      * @since             0.0.1
      */
     static LineAssert hasLinesContaining(Collection<String> substrings) {
-        return new LinesAssert<String, String>(
+        return new Internal.LinesAssert<String, String>(
                 Collections.unmodifiableList(new ArrayList<>(substrings)),
                 new LinkedHashSet<>(substrings),
                 (line, hits) -> {
@@ -108,7 +108,7 @@ public interface LineAssert extends Assert {
      */
     static LineAssert doesNotHaveLinesContaining(Collection<String> substrings) {
         final List<String> checks = Collections.unmodifiableList(new ArrayList<>(substrings));
-        return new LinesAssert<String, String>(
+        return new Internal.LinesAssert<String, String>(
                 checks,
                 new LinkedHashSet<>(),
                 (line, hits) -> {
@@ -131,7 +131,7 @@ public interface LineAssert extends Assert {
      * @since             0.0.1
      */
     static LineAssert hasLinesContainingCaseInsensitive(Collection<String> substrings, Locale locale) {
-        return new LinesAssert<String, String>(
+        return new Internal.LinesAssert<String, String>(
                 Collections.unmodifiableList(new ArrayList<>(substrings)),
                 new LinkedHashSet<>(substrings),
                 (line, hits) -> {
@@ -157,7 +157,7 @@ public interface LineAssert extends Assert {
      */
     static LineAssert doesNotHaveLinesContainingCaseInsensitive(Collection<String> substrings, Locale locale) {
         final List<String> checks = Collections.unmodifiableList(new ArrayList<>(substrings));
-        return new LinesAssert<String, String>(
+        return new Internal.LinesAssert<String, String>(
                 checks,
                 new LinkedHashSet<>(),
                 (line, hits) -> {
@@ -183,7 +183,7 @@ public interface LineAssert extends Assert {
      * @since         0.0.1
      */
     static LineAssert hasLinesMatchingPatterns(Collection<Pattern> regex) {
-        return LinesAssert.containsMatching(regex);
+        return Internal.LinesAssert.containsMatching(regex);
     }
 
     /**
@@ -196,7 +196,7 @@ public interface LineAssert extends Assert {
      * @since        0.0.1
      */
     static LineAssert hasLinesMatching(Collection<String> regex) {
-        return LinesAssert.containsMatching(LinesAssert.compile(regex));
+        return Internal.LinesAssert.containsMatching(Internal.LinesAssert.compile(regex));
     }
 
     /**
@@ -208,7 +208,7 @@ public interface LineAssert extends Assert {
      * @since        0.0.1
      */
     static LineAssert doesNotHaveLinesMatchingPatterns(Collection<Pattern> regex) {
-        return LinesAssert.doesNotContainMatching(regex);
+        return Internal.LinesAssert.doesNotContainMatching(regex);
     }
 
     /**
@@ -220,7 +220,7 @@ public interface LineAssert extends Assert {
      * @since        0.0.1
      */
     static LineAssert doesNotHaveLinesMatching(Collection<String> regex) {
-        return LinesAssert.doesNotContainMatching(LinesAssert.compile(regex));
+        return Internal.LinesAssert.doesNotContainMatching(Internal.LinesAssert.compile(regex));
     }
 
     /**
@@ -231,7 +231,7 @@ public interface LineAssert extends Assert {
      * @since                    0.0.1
      */
     static LineAssert hasLineCount(int expectedLineCount) {
-        return new LineCountAssert(actual -> actual.intValue() == expectedLineCount,
+        return new Internal.LineCountAssert(actual -> actual.intValue() == expectedLineCount,
                 "Expected " + expectedLineCount + " lines but found %d lines");
     }
 
@@ -245,8 +245,8 @@ public interface LineAssert extends Assert {
      * @return             a new {@link LineAssert}
      * @since              0.0.1
      */
-    public static LineCountAssert hasLineCount(Predicate<Integer> expected, String description) {
-        return new LineCountAssert(expected, description);
+    public static LineAssert hasLineCount(Predicate<Integer> expected, String description) {
+        return new Internal.LineCountAssert(expected, description);
     }
 
     /**
@@ -257,135 +257,137 @@ public interface LineAssert extends Assert {
      * @since           0.0.1
      */
     static LineAssert log(Consumer<String> consumer) {
-        return new ConsumerAssert(consumer);
+        return new Internal.ConsumerLineAssert(consumer);
     }
 
-    static class ConsumerAssert implements LineAssert {
-        private final Consumer<String> consumer;
+    static final class Internal {
+        static class ConsumerLineAssert implements LineAssert {
+            private final Consumer<String> consumer;
 
-        private ConsumerAssert(Consumer<String> consumer) {
-            this.consumer = consumer;
+            private ConsumerLineAssert(Consumer<String> consumer) {
+                this.consumer = consumer;
+            }
+
+            @Override
+            public void assertSatisfied() {
+            }
+
+            @Override
+            public LineAssert line(String line) {
+                consumer.accept(line);
+                return this;
+            }
+
         }
 
-        @Override
-        public void assertSatisfied() {
-        }
+        static class LinesAssert<C, H> implements LineAssert {
 
-        @Override
-        public LineAssert line(String line) {
-            consumer.accept(line);
-            return this;
-        }
+            private final Collection<C> checks;
+            private final Collection<H> hits;
+            private final BiConsumer<String, Collection<H>> lineConsumer;
+            private final String message;
 
-    }
+            private LinesAssert(
+                    Collection<C> checks,
+                    Collection<H> hits,
+                    BiConsumer<String, Collection<H>> lineConsumer,
+                    String message) {
+                this.checks = Objects.requireNonNull(checks, "checks");
+                this.hits = Objects.requireNonNull(hits, "hits");
+                this.lineConsumer = lineConsumer;
+                this.message = message;
+            }
 
-    static class LinesAssert<C, H> implements LineAssert {
-
-        private final Collection<C> checks;
-        private final Collection<H> hits;
-        private final BiConsumer<String, Collection<H>> lineConsumer;
-        private final String message;
-
-        LinesAssert(
-                Collection<C> checks,
-                Collection<H> hits,
-                BiConsumer<String, Collection<H>> lineConsumer,
-                String message) {
-            this.checks = Objects.requireNonNull(checks, "checks");
-            this.hits = Objects.requireNonNull(hits, "hits");
-            this.lineConsumer = lineConsumer;
-            this.message = message;
-        }
-
-        static LineAssert containsMatching(Collection<Pattern> checks) {
-            final Map<String, Pattern> hts = new LinkedHashMap<>();
-            checks.forEach(p -> hts.put(p.pattern(), p));
-            return new LinesAssert<Pattern, Pattern>(
-                    checks,
-                    hts.values(),
-                    (line, hits) -> {
-                        for (Iterator<Pattern> i = hits.iterator(); i.hasNext();) {
-                            Pattern p = i.next();
-                            if (p.matcher(line).find()) {
-                                i.remove();
+            static LineAssert containsMatching(Collection<Pattern> checks) {
+                final Map<String, Pattern> hts = new LinkedHashMap<>();
+                checks.forEach(p -> hts.put(p.pattern(), p));
+                return new LinesAssert<Pattern, Pattern>(
+                        checks,
+                        hts.values(),
+                        (line, hits) -> {
+                            for (Iterator<Pattern> i = hits.iterator(); i.hasNext();) {
+                                Pattern p = i.next();
+                                if (p.matcher(line).find()) {
+                                    i.remove();
+                                }
                             }
-                        }
-                    },
-                    "Expected lines matching\n\n    %s\n\nto occur, but the following patterns did not match:\n\n    %s\n\n");
-        }
+                        },
+                        "Expected lines matching\n\n    %s\n\nto occur, but the following patterns did not match:\n\n    %s\n\n");
+            }
 
-        static LineAssert doesNotContainMatching(Collection<Pattern> checks) {
-            return new LinesAssert<Pattern, String>(
-                    checks,
-                    new LinkedHashSet<>(),
-                    (line, hits) -> {
-                        for (Iterator<Pattern> i = checks.iterator(); i.hasNext();) {
-                            Pattern p = i.next();
-                            if (p.matcher(line).find()) {
-                                hits.add(line);
+            static LineAssert doesNotContainMatching(Collection<Pattern> checks) {
+                return new LinesAssert<Pattern, String>(
+                        checks,
+                        new LinkedHashSet<>(),
+                        (line, hits) -> {
+                            for (Iterator<Pattern> i = checks.iterator(); i.hasNext();) {
+                                Pattern p = i.next();
+                                if (p.matcher(line).find()) {
+                                    hits.add(line);
+                                }
                             }
-                        }
-                    },
-                    "Expected no lines matching\n\n    %s\n\nto occur, but some of the patterns matched the lines\n\n    %s\n\n");
-        }
+                        },
+                        "Expected no lines matching\n\n    %s\n\nto occur, but some of the patterns matched the lines\n\n    %s\n\n");
+            }
 
-        static Map<String, Pattern> toMap(Collection<Pattern> expectedPatterns) {
-            Map<String, Pattern> pats = new LinkedHashMap<>();
-            expectedPatterns.stream()
-                    .forEach(p -> pats.put(p.pattern(), p));
-            return pats;
-        }
+            static Map<String, Pattern> toMap(Collection<Pattern> expectedPatterns) {
+                Map<String, Pattern> pats = new LinkedHashMap<>();
+                expectedPatterns.stream()
+                        .forEach(p -> pats.put(p.pattern(), p));
+                return pats;
+            }
 
-        static List<Pattern> compile(Collection<String> expectedPatterns) {
-            return Collections.unmodifiableList(expectedPatterns.stream()
-                    .map(Pattern::compile)
-                    .collect(Collectors.toList()));
-        }
+            static List<Pattern> compile(Collection<String> expectedPatterns) {
+                return Collections.unmodifiableList(expectedPatterns.stream()
+                        .map(Pattern::compile)
+                        .collect(Collectors.toList()));
+            }
 
-        @Override
-        public void assertSatisfied() {
-            synchronized (hits) {
-                if (!hits.isEmpty()) {
-                    throw new AssertionError(String.format(message, list(checks), list(hits)));
+            @Override
+            public void assertSatisfied() {
+                synchronized (hits) {
+                    if (!hits.isEmpty()) {
+                        throw new AssertionError(String.format(message, list(checks), list(hits)));
+                    }
                 }
             }
-        }
 
-        String list(Collection<? extends Object> list) {
-            return list.stream().map(Object::toString).collect(Collectors.joining("\n    "));
-        }
-
-        @Override
-        public LinesAssert<C, H> line(String line) {
-            synchronized (hits) {
-                lineConsumer.accept(line, hits);
+            String list(Collection<? extends Object> list) {
+                return list.stream().map(Object::toString).collect(Collectors.joining("\n    "));
             }
-            return this;
-        }
 
-    }
-
-    static class LineCountAssert implements LineAssert {
-        private final Predicate<Integer> expected;
-        private final AtomicInteger actualCount = new AtomicInteger();
-        private final String description;
-
-        LineCountAssert(Predicate<Integer> expected, String description) {
-            this.expected = expected;
-            this.description = description;
-        }
-
-        @Override
-        public void assertSatisfied() {
-            if (!expected.test(actualCount.get())) {
-                throw new AssertionError(String.format(description, actualCount.get()));
+            @Override
+            public LinesAssert<C, H> line(String line) {
+                synchronized (hits) {
+                    lineConsumer.accept(line, hits);
+                }
+                return this;
             }
+
         }
 
-        @Override
-        public LineAssert line(String line) {
-            actualCount.incrementAndGet();
-            return this;
+        static class LineCountAssert implements LineAssert {
+            private final Predicate<Integer> expected;
+            private final AtomicInteger actualCount = new AtomicInteger();
+            private final String description;
+
+            private LineCountAssert(Predicate<Integer> expected, String description) {
+                this.expected = expected;
+                this.description = description;
+            }
+
+            @Override
+            public void assertSatisfied() {
+                if (!expected.test(actualCount.get())) {
+                    throw new AssertionError(String.format(description, actualCount.get()));
+                }
+            }
+
+            @Override
+            public LineAssert line(String line) {
+                actualCount.incrementAndGet();
+                return this;
+            }
         }
     }
 

@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
  * @since  0.0.1
  * @author <a href="https://github.com/ppalaga">Peter Palaga</a>
  */
-public class Expectations {
+class Expectations {
     static final Logger log = LoggerFactory.getLogger(Expectations.class);
     final Function<InputStream, OutputConsumer> stdout;
     final Function<InputStream, OutputConsumer> stderr;
