@@ -11,7 +11,7 @@ import org.l2x6.cli.assured.asserts.ExitCodeAssert;
 
 /**
  * A wrapper around {@link Process} that manages its destroying and offers
- * {@link #awaitTermination()} honoring the timeout passed via {@link Command#timeoutMs}.
+ * {@link #awaitTermination()} honoring the timeout passed via {@link CommandSpec#timeoutMs}.
  *
  * @since  0.0.1
  * @author <a href="https://github.com/ppalaga">Peter Palaga</a>

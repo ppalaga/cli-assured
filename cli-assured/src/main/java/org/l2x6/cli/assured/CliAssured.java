@@ -14,27 +14,27 @@ import java.util.Collections;
  */
 public class CliAssured {
     /**
-     * @return a plain {@link Command}
+     * @return a plain {@link CommandSpec}
      * @since  0.0.1
      */
-    public static Command given() {
-        return new Command(null, Collections.emptyList());
+    public static CommandSpec given() {
+        return new CommandSpec(null, Collections.emptyList());
     }
 
     /**
-     * @return a {@link Command} with the java exectuable of the current JVM set as
-     *         {@link Command#executable(String)}
+     * @return a {@link CommandSpec} with the java exectuable of the current JVM set as
+     *         {@link CommandSpec#executable(String)}
      * @since  0.0.1
      */
-    public static Command java() {
-        return new Command(Command.javaExecutable(), Collections.emptyList());
+    public static CommandSpec java() {
+        return new CommandSpec(CommandSpec.javaExecutable(), Collections.emptyList());
     }
 
     /**
-     * @return a {@link Command} with the specified command set
+     * @return a {@link CommandSpec} with the specified command set
      * @since  0.0.1
      */
-    public static Command command(String executable, String... args) {
-        return new Command(executable, Collections.unmodifiableList(new ArrayList<>(Arrays.asList(args))));
+    public static CommandSpec command(String executable, String... args) {
+        return new CommandSpec(executable, Collections.unmodifiableList(new ArrayList<>(Arrays.asList(args))));
     }
 }

@@ -38,18 +38,18 @@ import org.slf4j.LoggerFactory;
  * @since  0.0.1
  * @author <a href="https://github.com/ppalaga">Peter Palaga</a>
  */
-public class StreamExpectationsBuilder {
+public class StreamExpectationsSpec {
 
-    private final Function<Function<InputStream, OutputConsumer>, Expectations> expectations;
-    private final StreamExpectationsBuilder.ProcessOutput stream;
+    private final Function<Function<InputStream, OutputConsumer>, ExpectationsSpec> expectations;
+    private final StreamExpectationsSpec.ProcessOutput stream;
 
     private final List<LineAssert> asserts;
     private final ByteCountAssert byteCountAssert;
     private final Charset charset;
     private final Supplier<OutputStream> redirect;
 
-    StreamExpectationsBuilder(
-            Function<Function<InputStream, OutputConsumer>, Expectations> expectations,
+    StreamExpectationsSpec(
+            Function<Function<InputStream, OutputConsumer>, ExpectationsSpec> expectations,
             ProcessOutput stream) {
         this.expectations = expectations;
         this.stream = stream;
@@ -59,9 +59,9 @@ public class StreamExpectationsBuilder {
         this.redirect = null;
     }
 
-    StreamExpectationsBuilder(
-            Function<Function<InputStream, OutputConsumer>, Expectations> expectations,
-            StreamExpectationsBuilder.ProcessOutput stream,
+    StreamExpectationsSpec(
+            Function<Function<InputStream, OutputConsumer>, ExpectationsSpec> expectations,
+            StreamExpectationsSpec.ProcessOutput stream,
             List<LineAssert> asserts,
             ByteCountAssert byteCountAssert,
             Charset charset,
@@ -78,11 +78,11 @@ public class StreamExpectationsBuilder {
      * Assert that the given {@link LineAssert}s are satisfied.
      *
      * @param  lines the whole lines to look for
-     * @return       this {@link StreamExpectationsBuilder}
+     * @return       this {@link StreamExpectationsSpec}
      * @since        0.0.1
      */
-    public StreamExpectationsBuilder linesSatisfy(LineAssert... asserts) {
-        return new StreamExpectationsBuilder(expectations, stream, CliAssertUtils.join(this.asserts, asserts), byteCountAssert,
+    public StreamExpectationsSpec linesSatisfy(LineAssert... asserts) {
+        return new StreamExpectationsSpec(expectations, stream, CliAssertUtils.join(this.asserts, asserts), byteCountAssert,
                 charset, redirect);
     }
 
@@ -90,11 +90,11 @@ public class StreamExpectationsBuilder {
      * Assert that the given {@link LineAssert}s are satisfied.
      *
      * @param  lines the whole lines to look for
-     * @return       this {@link StreamExpectationsBuilder}
+     * @return       this {@link StreamExpectationsSpec}
      * @since        0.0.1
      */
-    public StreamExpectationsBuilder linesSatisfy(Collection<LineAssert> asserts) {
-        return new StreamExpectationsBuilder(expectations, stream, CliAssertUtils.join(this.asserts, asserts), byteCountAssert,
+    public StreamExpectationsSpec linesSatisfy(Collection<LineAssert> asserts) {
+        return new StreamExpectationsSpec(expectations, stream, CliAssertUtils.join(this.asserts, asserts), byteCountAssert,
                 charset, redirect);
     }
 
@@ -102,11 +102,11 @@ public class StreamExpectationsBuilder {
      * Assert that the given lines are present in the underlying output stream among other lines in any order.
      *
      * @param  lines the whole lines to look for
-     * @return       this {@link StreamExpectationsBuilder}
+     * @return       this {@link StreamExpectationsSpec}
      * @since        0.0.1
      */
-    public StreamExpectationsBuilder hasLines(String... lines) {
-        return new StreamExpectationsBuilder(expectations, stream,
+    public StreamExpectationsSpec hasLines(String... lines) {
+        return new StreamExpectationsSpec(expectations, stream,
                 CliAssertUtils.join(this.asserts, LineAssert.hasLines(Arrays.asList(lines))), byteCountAssert, charset,
                 redirect);
     }
@@ -115,11 +115,11 @@ public class StreamExpectationsBuilder {
      * Assert that the given lines are present in the underlying output stream among other lines in any order.
      *
      * @param  lines the whole lines to look for
-     * @return       this {@link StreamExpectationsBuilder}
+     * @return       this {@link StreamExpectationsSpec}
      * @since        0.0.1
      */
-    public StreamExpectationsBuilder hasLines(Collection<String> lines) {
-        return new StreamExpectationsBuilder(expectations, stream,
+    public StreamExpectationsSpec hasLines(Collection<String> lines) {
+        return new StreamExpectationsSpec(expectations, stream,
                 CliAssertUtils.join(this.asserts, LineAssert.hasLines(lines)), byteCountAssert, charset, redirect);
     }
 
@@ -127,11 +127,11 @@ public class StreamExpectationsBuilder {
      * Assert that the given lines are not present in the underlying output stream.
      *
      * @param  lines the whole lines to look for
-     * @return       this {@link StreamExpectationsBuilder}
+     * @return       this {@link StreamExpectationsSpec}
      * @since        0.0.1
      */
-    public StreamExpectationsBuilder doesNotHaveLines(String... lines) {
-        return new StreamExpectationsBuilder(expectations, stream,
+    public StreamExpectationsSpec doesNotHaveLines(String... lines) {
+        return new StreamExpectationsSpec(expectations, stream,
                 CliAssertUtils.join(this.asserts, LineAssert.doesNotHaveLines(Arrays.asList(lines))), byteCountAssert, charset,
                 redirect);
     }
@@ -140,11 +140,11 @@ public class StreamExpectationsBuilder {
      * Assert that the given lines are not present in the underlying output stream.
      *
      * @param  lines the whole lines to look for
-     * @return       this {@link StreamExpectationsBuilder}
+     * @return       this {@link StreamExpectationsSpec}
      * @since        0.0.1
      */
-    public StreamExpectationsBuilder doesNotHaveLines(Collection<String> lines) {
-        return new StreamExpectationsBuilder(expectations, stream,
+    public StreamExpectationsSpec doesNotHaveLines(Collection<String> lines) {
+        return new StreamExpectationsSpec(expectations, stream,
                 CliAssertUtils.join(this.asserts, LineAssert.doesNotHaveLines(lines)), byteCountAssert, charset, redirect);
     }
 
@@ -153,11 +153,11 @@ public class StreamExpectationsBuilder {
      * number of lines.
      *
      * @param  expectedLineCount
-     * @return                   this {@link StreamExpectationsBuilder}
+     * @return                   this {@link StreamExpectationsSpec}
      * @since                    0.0.1
      */
-    public StreamExpectationsBuilder hasLineCount(int expectedLineCount) {
-        return new StreamExpectationsBuilder(expectations, stream,
+    public StreamExpectationsSpec hasLineCount(int expectedLineCount) {
+        return new StreamExpectationsSpec(expectations, stream,
                 CliAssertUtils.join(this.asserts, LineAssert.hasLineCount(expectedLineCount)), byteCountAssert, charset,
                 redirect);
     }
@@ -169,11 +169,11 @@ public class StreamExpectationsBuilder {
      * @param  expected    the condition the number of actual lines must satisfy
      * @param  description the description of a failure typically something like
      *                     {@code "Expected number of lines <condition> but found %d lines"}
-     * @return             this {@link StreamExpectationsBuilder}
+     * @return             this {@link StreamExpectationsSpec}
      * @since              0.0.1
      */
-    public StreamExpectationsBuilder hasLineCount(Predicate<Integer> expected, String description) {
-        return new StreamExpectationsBuilder(expectations, stream,
+    public StreamExpectationsSpec hasLineCount(Predicate<Integer> expected, String description) {
+        return new StreamExpectationsSpec(expectations, stream,
                 CliAssertUtils.join(this.asserts, LineAssert.hasLineCount(expected, description)), byteCountAssert, charset,
                 redirect);
     }
@@ -183,11 +183,11 @@ public class StreamExpectationsBuilder {
      * bytes.
      *
      * @param  expectedByteCount the number of bytes to enforce
-     * @return                   this {@link StreamExpectationsBuilder}
+     * @return                   this {@link StreamExpectationsSpec}
      * @since                    0.0.1
      */
-    public StreamExpectationsBuilder hasByteCount(long expectedByteCount) {
-        return new StreamExpectationsBuilder(expectations, stream, asserts, ByteCountAssert.hasByteCount(expectedByteCount),
+    public StreamExpectationsSpec hasByteCount(long expectedByteCount) {
+        return new StreamExpectationsSpec(expectations, stream, asserts, ByteCountAssert.hasByteCount(expectedByteCount),
                 charset, redirect);
     }
 
@@ -198,11 +198,11 @@ public class StreamExpectationsBuilder {
      * @param  expected    the condition the number of actual bytes must satisfy
      * @param  description the description of a failure, typically something like
      *                     {@code "Expected number of bytes <condition> but found %d bytes"}
-     * @return             this {@link StreamExpectationsBuilder}
+     * @return             this {@link StreamExpectationsSpec}
      * @since              0.0.1
      */
-    public StreamExpectationsBuilder hasByteCount(Predicate<Long> expected, String description) {
-        return new StreamExpectationsBuilder(expectations, stream, asserts, ByteCountAssert.hasByteCount(expected, description),
+    public StreamExpectationsSpec hasByteCount(Predicate<Long> expected, String description) {
+        return new StreamExpectationsSpec(expectations, stream, asserts, ByteCountAssert.hasByteCount(expected, description),
                 charset, redirect);
     }
 
@@ -211,11 +211,11 @@ public class StreamExpectationsBuilder {
      * An equivalent of {@link #hasByteCount(long) hasByteCount(0)}.
      *
      * @param  expectedLineCount
-     * @return                   this {@link StreamExpectationsBuilder}
+     * @return                   this {@link StreamExpectationsSpec}
      * @since                    0.0.1
      */
-    public StreamExpectationsBuilder isEmpty() {
-        return new StreamExpectationsBuilder(expectations, stream, asserts, ByteCountAssert.hasByteCount(0), charset, redirect);
+    public StreamExpectationsSpec isEmpty() {
+        return new StreamExpectationsSpec(expectations, stream, asserts, ByteCountAssert.hasByteCount(0), charset, redirect);
     }
 
     /**
@@ -223,11 +223,11 @@ public class StreamExpectationsBuilder {
      * lines in any order.
      *
      * @param  substrings the substrings to look for in the associated output stream
-     * @return            this {@link StreamExpectationsBuilder}
+     * @return            this {@link StreamExpectationsSpec}
      * @since             0.0.1
      */
-    public StreamExpectationsBuilder hasLinesContaining(String... substrings) {
-        return new StreamExpectationsBuilder(expectations, stream,
+    public StreamExpectationsSpec hasLinesContaining(String... substrings) {
+        return new StreamExpectationsSpec(expectations, stream,
                 CliAssertUtils.join(this.asserts, LineAssert.hasLinesContaining(Arrays.asList(substrings))), byteCountAssert,
                 charset, redirect);
     }
@@ -237,11 +237,11 @@ public class StreamExpectationsBuilder {
      * lines in any order.
      *
      * @param  substrings the substrings to look for in the associated output stream
-     * @return            this {@link StreamExpectationsBuilder}
+     * @return            this {@link StreamExpectationsSpec}
      * @since             0.0.1
      */
-    public StreamExpectationsBuilder hasLinesContaining(Collection<String> substrings) {
-        return new StreamExpectationsBuilder(expectations, stream,
+    public StreamExpectationsSpec hasLinesContaining(Collection<String> substrings) {
+        return new StreamExpectationsSpec(expectations, stream,
                 CliAssertUtils.join(this.asserts, LineAssert.hasLinesContaining(substrings)), byteCountAssert, charset,
                 redirect);
     }
@@ -250,11 +250,11 @@ public class StreamExpectationsBuilder {
      * Assert that lines containing the given {@code substrings} are not present in the underlying output stream.
      *
      * @param  substrings the substrings to look for in the associated output stream
-     * @return            this {@link StreamExpectationsBuilder}
+     * @return            this {@link StreamExpectationsSpec}
      * @since             0.0.1
      */
-    public StreamExpectationsBuilder doesNotHaveLinesContaining(String... substrings) {
-        return new StreamExpectationsBuilder(expectations, stream,
+    public StreamExpectationsSpec doesNotHaveLinesContaining(String... substrings) {
+        return new StreamExpectationsSpec(expectations, stream,
                 CliAssertUtils.join(this.asserts, LineAssert.doesNotHaveLinesContaining(Arrays.asList(substrings))),
                 byteCountAssert, charset, redirect);
     }
@@ -263,11 +263,11 @@ public class StreamExpectationsBuilder {
      * Assert that lines containing the given {@code substrings} are not present in the underlying output stream.
      *
      * @param  substrings the substrings to look for in the associated output stream
-     * @return            this {@link StreamExpectationsBuilder}
+     * @return            this {@link StreamExpectationsSpec}
      * @since             0.0.1
      */
-    public StreamExpectationsBuilder doesNotHaveLinesContaining(Collection<String> substrings) {
-        return new StreamExpectationsBuilder(expectations, stream,
+    public StreamExpectationsSpec doesNotHaveLinesContaining(Collection<String> substrings) {
+        return new StreamExpectationsSpec(expectations, stream,
                 CliAssertUtils.join(this.asserts, LineAssert.doesNotHaveLinesContaining(substrings)), byteCountAssert, charset,
                 redirect);
     }
@@ -278,11 +278,11 @@ public class StreamExpectationsBuilder {
      * lines in any order.
      *
      * @param  substrings the substrings to look for in the associated output stream
-     * @return            this {@link StreamExpectationsBuilder}
+     * @return            this {@link StreamExpectationsSpec}
      * @since             0.0.1
      */
-    public StreamExpectationsBuilder hasLinesContainingCaseInsensitive(String... substrings) {
-        return new StreamExpectationsBuilder(expectations, stream,
+    public StreamExpectationsSpec hasLinesContainingCaseInsensitive(String... substrings) {
+        return new StreamExpectationsSpec(expectations, stream,
                 CliAssertUtils.join(this.asserts, LineAssert.hasLinesContainingCaseInsensitive(
                         Stream.of(substrings).map(s -> s.toLowerCase(Locale.US)).collect(Collectors.toList()), Locale.US)),
                 byteCountAssert, charset, redirect);
@@ -294,11 +294,11 @@ public class StreamExpectationsBuilder {
      * lines in any order.
      *
      * @param  substrings the substrings to look for in the associated output stream
-     * @return            this {@link StreamExpectationsBuilder}
+     * @return            this {@link StreamExpectationsSpec}
      * @since             0.0.1
      */
-    public StreamExpectationsBuilder hasLinesContainingCaseInsensitive(Collection<String> substrings) {
-        return new StreamExpectationsBuilder(expectations, stream,
+    public StreamExpectationsSpec hasLinesContainingCaseInsensitive(Collection<String> substrings) {
+        return new StreamExpectationsSpec(expectations, stream,
                 CliAssertUtils.join(this.asserts, LineAssert.hasLinesContainingCaseInsensitive(
                         substrings.stream().map(s -> s.toLowerCase(Locale.US)).collect(Collectors.toList()), Locale.US)),
                 byteCountAssert, charset, redirect);
@@ -309,11 +309,11 @@ public class StreamExpectationsBuilder {
      * underlying output stream.
      *
      * @param  substrings the substrings to look for in the associated output stream
-     * @return            this {@link StreamExpectationsBuilder}
+     * @return            this {@link StreamExpectationsSpec}
      * @since             0.0.1
      */
-    public StreamExpectationsBuilder doesNotHaveLinesContainingCaseInsensitive(String... substrings) {
-        return new StreamExpectationsBuilder(expectations, stream,
+    public StreamExpectationsSpec doesNotHaveLinesContainingCaseInsensitive(String... substrings) {
+        return new StreamExpectationsSpec(expectations, stream,
                 CliAssertUtils.join(this.asserts, LineAssert.doesNotHaveLinesContainingCaseInsensitive(
                         Stream.of(substrings).map(s -> s.toLowerCase(Locale.US)).collect(Collectors.toList()), Locale.US)),
                 byteCountAssert, charset, redirect);
@@ -324,11 +324,11 @@ public class StreamExpectationsBuilder {
      * underlying output stream.
      *
      * @param  substrings the substrings to look for in the associated output stream
-     * @return            this {@link StreamExpectationsBuilder}
+     * @return            this {@link StreamExpectationsSpec}
      * @since             0.0.1
      */
-    public StreamExpectationsBuilder doesNotHaveLinesContainingCaseInsensitive(Collection<String> substrings) {
-        return new StreamExpectationsBuilder(expectations, stream,
+    public StreamExpectationsSpec doesNotHaveLinesContainingCaseInsensitive(Collection<String> substrings) {
+        return new StreamExpectationsSpec(expectations, stream,
                 CliAssertUtils.join(this.asserts, LineAssert.doesNotHaveLinesContainingCaseInsensitive(
                         substrings.stream().map(s -> s.toLowerCase(Locale.US)).collect(Collectors.toList()), Locale.US)),
                 byteCountAssert, charset, redirect);
@@ -340,11 +340,11 @@ public class StreamExpectationsBuilder {
      * The regular expression is evaluated using {@link Matcher#find()} rather than {@link Matcher#matches()}
      *
      * @param  regex the regular expressions to look for in the associated output stream
-     * @return       this {@link StreamExpectationsBuilder}
+     * @return       this {@link StreamExpectationsSpec}
      * @since        0.0.1
      */
-    public StreamExpectationsBuilder hasLinesMatching(Collection<String> regex) {
-        return new StreamExpectationsBuilder(expectations, stream,
+    public StreamExpectationsSpec hasLinesMatching(Collection<String> regex) {
+        return new StreamExpectationsSpec(expectations, stream,
                 CliAssertUtils.join(this.asserts, LineAssert.hasLinesMatching(regex)), byteCountAssert, charset, redirect);
     }
 
@@ -354,11 +354,11 @@ public class StreamExpectationsBuilder {
      * The regular expression is evaluated using {@link Matcher#find()} rather than {@link Matcher#matches()}
      *
      * @param  regex the regular expressions to look for in the associated output stream
-     * @return       this {@link StreamExpectationsBuilder}
+     * @return       this {@link StreamExpectationsSpec}
      * @since        0.0.1
      */
-    public StreamExpectationsBuilder hasLinesMatching(String... regex) {
-        return new StreamExpectationsBuilder(expectations, stream,
+    public StreamExpectationsSpec hasLinesMatching(String... regex) {
+        return new StreamExpectationsSpec(expectations, stream,
                 CliAssertUtils.join(this.asserts, LineAssert.hasLinesMatching(Arrays.asList(regex))), byteCountAssert, charset,
                 redirect);
     }
@@ -369,11 +369,11 @@ public class StreamExpectationsBuilder {
      * The regular expression is evaluated using {@link Matcher#find()} rather than {@link Matcher#matches()}
      *
      * @param  regex the regular expressions to look for in the associated output stream
-     * @return       this {@link StreamExpectationsBuilder}
+     * @return       this {@link StreamExpectationsSpec}
      * @since        0.0.1
      */
-    public StreamExpectationsBuilder hasLinesMatching(Pattern... regex) {
-        return new StreamExpectationsBuilder(expectations, stream,
+    public StreamExpectationsSpec hasLinesMatching(Pattern... regex) {
+        return new StreamExpectationsSpec(expectations, stream,
                 CliAssertUtils.join(this.asserts, LineAssert.hasLinesMatchingPatterns(Arrays.asList(regex))), byteCountAssert,
                 charset, redirect);
     }
@@ -383,11 +383,11 @@ public class StreamExpectationsBuilder {
      * The regular expression is evaluated using {@link Matcher#find()} rather than {@link Matcher#matches()}
      *
      * @param  regex the regular expressions to look for in the associated output stream
-     * @return       this {@link StreamExpectationsBuilder}
+     * @return       this {@link StreamExpectationsSpec}
      * @since        0.0.1
      */
-    public StreamExpectationsBuilder doesNotHaveLinesMatching(Collection<String> regex) {
-        return new StreamExpectationsBuilder(expectations, stream,
+    public StreamExpectationsSpec doesNotHaveLinesMatching(Collection<String> regex) {
+        return new StreamExpectationsSpec(expectations, stream,
                 CliAssertUtils.join(this.asserts, LineAssert.doesNotHaveLinesMatching(regex)), byteCountAssert, charset,
                 redirect);
     }
@@ -397,11 +397,11 @@ public class StreamExpectationsBuilder {
      * The regular expression is evaluated using {@link Matcher#find()} rather than {@link Matcher#matches()}
      *
      * @param  regex the regular expressions to look for in the associated output stream
-     * @return       this {@link StreamExpectationsBuilder}
+     * @return       this {@link StreamExpectationsSpec}
      * @since        0.0.1
      */
-    public StreamExpectationsBuilder doesNotHaveLinesMatching(String... regex) {
-        return new StreamExpectationsBuilder(expectations, stream,
+    public StreamExpectationsSpec doesNotHaveLinesMatching(String... regex) {
+        return new StreamExpectationsSpec(expectations, stream,
                 CliAssertUtils.join(this.asserts, LineAssert.doesNotHaveLinesMatching(Arrays.asList(regex))), byteCountAssert,
                 charset, redirect);
     }
@@ -411,11 +411,11 @@ public class StreamExpectationsBuilder {
      * The regular expression is evaluated using {@link Matcher#find()} rather than {@link Matcher#matches()}
      *
      * @param  regex the regular expressions to look for in the associated output stream
-     * @return       this {@link StreamExpectationsBuilder}
+     * @return       this {@link StreamExpectationsSpec}
      * @since        0.0.1
      */
-    public StreamExpectationsBuilder doesNotHaveLinesMatching(Pattern... regex) {
-        return new StreamExpectationsBuilder(expectations, stream,
+    public StreamExpectationsSpec doesNotHaveLinesMatching(Pattern... regex) {
+        return new StreamExpectationsSpec(expectations, stream,
                 CliAssertUtils.join(this.asserts, LineAssert.doesNotHaveLinesMatchingPatterns(Arrays.asList(regex))),
                 byteCountAssert, charset, redirect);
     }
@@ -424,22 +424,22 @@ public class StreamExpectationsBuilder {
      * Read the underlying {@link InputStream} using the given {@code charset}
      *
      * @param  charset the character encoding to use when reading the underlying {@link InputStream}
-     * @return         this {@link StreamExpectationsBuilder}
+     * @return         this {@link StreamExpectationsSpec}
      * @since          0.0.1
      */
-    public StreamExpectationsBuilder charset(Charset charset) {
-        return new StreamExpectationsBuilder(expectations, stream, asserts, byteCountAssert, charset, redirect);
+    public StreamExpectationsSpec charset(Charset charset) {
+        return new StreamExpectationsSpec(expectations, stream, asserts, byteCountAssert, charset, redirect);
     }
 
     /**
      * Redirect the output to the given {@code file}.
      *
      * @param  file where to store the output of the underlying command
-     * @return      this {@link StreamExpectationsBuilder}
+     * @return      this {@link StreamExpectationsSpec}
      * @since       0.0.1
      */
-    public StreamExpectationsBuilder redirect(Path file) {
-        return new StreamExpectationsBuilder(expectations, stream, asserts, byteCountAssert, charset, () -> {
+    public StreamExpectationsSpec redirect(Path file) {
+        return new StreamExpectationsSpec(expectations, stream, asserts, byteCountAssert, charset, () -> {
             try {
                 return Files.newOutputStream(file);
             } catch (IOException e) {
@@ -454,22 +454,22 @@ public class StreamExpectationsBuilder {
      * The caller should take care to do so.
      *
      * @param  outputStream where to redirect the output of the underlying command
-     * @return              this {@link StreamExpectationsBuilder}
+     * @return              this {@link StreamExpectationsSpec}
      * @since               0.0.1
      */
-    public StreamExpectationsBuilder redirect(OutputStream outputStream) {
-        return new StreamExpectationsBuilder(expectations, stream, asserts, byteCountAssert, charset,
-                () -> new StreamExpectationsBuilder.NonClosingOut(outputStream));
+    public StreamExpectationsSpec redirect(OutputStream outputStream) {
+        return new StreamExpectationsSpec(expectations, stream, asserts, byteCountAssert, charset,
+                () -> new StreamExpectationsSpec.NonClosingOut(outputStream));
     }
 
     /**
      * Log each line of the output at {@code INFO} level using {@code org.l2x6.cli.assured.[stdout|stderr]} logger.
      *
-     * @return this {@link StreamExpectationsBuilder}
+     * @return this {@link StreamExpectationsSpec}
      * @since  0.0.1
      */
-    public StreamExpectationsBuilder log() {
-        return new StreamExpectationsBuilder(expectations, stream,
+    public StreamExpectationsSpec log() {
+        return new StreamExpectationsSpec(expectations, stream,
                 CliAssertUtils.join(this.asserts,
                         LineAssert.log(LoggerFactory.getLogger("org.l2x6.cli.assured." + stream.name())::info)),
                 byteCountAssert, charset, redirect);
@@ -480,23 +480,23 @@ public class StreamExpectationsBuilder {
      * method will be called from an output consuming thread.
      *
      * @param  logger a {@link Consumer} to notify about every new line.
-     * @return        this {@link StreamExpectationsBuilder}
+     * @return        this {@link StreamExpectationsSpec}
      * @since         0.0.1
      */
-    public StreamExpectationsBuilder log(Consumer<String> logger) {
-        return new StreamExpectationsBuilder(expectations, stream, CliAssertUtils.join(this.asserts, LineAssert.log(logger)),
+    public StreamExpectationsSpec log(Consumer<String> logger) {
+        return new StreamExpectationsSpec(expectations, stream, CliAssertUtils.join(this.asserts, LineAssert.log(logger)),
                 byteCountAssert, charset, redirect);
     }
 
     /**
      * Assert that the process exits with any the given {@code expectedExitCodes},
-     * build new {@link StreamExpectations} and set it on the parent {@link Expectations}
+     * build new {@link StreamExpectations} and set it on the parent {@link ExpectationsSpec}
      *
      * @param  expectedExitCodes the exit codes to assert
-     * @return                   the parent {@link Expectations}
+     * @return                   the parent {@link ExpectationsSpec}
      * @since                    0.0.1
      */
-    public Expectations exitCode(int... expectedExitCodes) {
+    public ExpectationsSpec exitCode(int... expectedExitCodes) {
         return parent().exitCode(expectedExitCodes);
     }
 
@@ -506,12 +506,12 @@ public class StreamExpectationsBuilder {
      * @return a new {@link OutputConsumer.CommandBuilder} to configure assertions for stderr
      * @since  0.0.1
      */
-    public StreamExpectationsBuilder stderr() {
+    public StreamExpectationsSpec stderr() {
         return parent().stderr();
     }
 
     /**
-     * Build new {@link StreamExpectations} from this {@link StreamExpectationsBuilder}, pass it to the parent
+     * Build new {@link StreamExpectations} from this {@link StreamExpectationsSpec}, pass it to the parent
      * {@link ExpectationsBuilder}, pass them to the parent {@link CommandBuilder}
      * and start the command.
      *
@@ -524,7 +524,7 @@ public class StreamExpectationsBuilder {
     }
 
     /**
-     * Build new {@link StreamExpectations} from this {@link StreamExpectationsBuilder}, pass it to the parent
+     * Build new {@link StreamExpectations} from this {@link StreamExpectationsSpec}, pass it to the parent
      * {@link ExpectationsBuilder}, pass them to the parent {@link CommandBuilder},
      * the {@link CommandProcess} and await (potentially indefinitely) its termination.
      * A shorthand for {@link #start()}.{@link CommandProcess#awaitTermination() awaitTermination()}
@@ -537,7 +537,7 @@ public class StreamExpectationsBuilder {
     }
 
     /**
-     * Build new {@link StreamExpectations} from this {@link StreamExpectationsBuilder}, pass it to the parent
+     * Build new {@link StreamExpectations} from this {@link StreamExpectationsSpec}, pass it to the parent
      * {@link ExpectationsBuilder}, pass them to the parent {@link CommandBuilder},
      * start the {@link CommandProcess} and await (potentially indefinitely) its termination at most for the specified
      * duration.
@@ -553,7 +553,7 @@ public class StreamExpectationsBuilder {
     }
 
     /**
-     * Build new {@link StreamExpectations} from this {@link StreamExpectationsBuilder}, pass it to the parent
+     * Build new {@link StreamExpectations} from this {@link StreamExpectationsSpec}, pass it to the parent
      * {@link ExpectationsBuilder}, pass them to the parent {@link CommandBuilder},
      * the {@link CommandProcess} and await (potentially indefinitely) its termination at most for the specified
      * timeout in milliseconds.
@@ -579,13 +579,13 @@ public class StreamExpectationsBuilder {
     }
 
     /**
-     * Build new {@link StreamExpectations} from this {@link StreamExpectationsBuilder} and pass it to the parent
-     * {@link Expectations}.
+     * Build new {@link StreamExpectations} from this {@link StreamExpectationsSpec} and pass it to the parent
+     * {@link ExpectationsSpec}.
      *
-     * @return the parent {@link Expectations}
+     * @return the parent {@link ExpectationsSpec}
      * @since  0.0.1
      */
-    Expectations parent() {
+    ExpectationsSpec parent() {
         return expectations.apply(build());
     }
 
@@ -595,9 +595,9 @@ public class StreamExpectationsBuilder {
         private final ByteCountAssert byteCountAssert;
         final Charset charset;
         final Supplier<OutputStream> redirect;
-        final StreamExpectationsBuilder.ProcessOutput stream;
+        final StreamExpectationsSpec.ProcessOutput stream;
 
-        static StreamExpectations hasNoLines(StreamExpectationsBuilder.ProcessOutput stream) {
+        static StreamExpectations hasNoLines(StreamExpectationsSpec.ProcessOutput stream) {
             return new StreamExpectations(
                     Collections.singletonList(LineAssert.doesNotHaveAnyLines(stream)),
                     null,
@@ -611,7 +611,7 @@ public class StreamExpectationsBuilder {
                 ByteCountAssert byteCountAssert,
                 Charset charset,
                 Supplier<OutputStream> redirect,
-                StreamExpectationsBuilder.ProcessOutput stream) {
+                StreamExpectationsSpec.ProcessOutput stream) {
             this.lineAsserts = Objects.requireNonNull(lineAsserts, "lineAsserts");
             this.byteCountAssert = byteCountAssert;
             this.charset = Objects.requireNonNull(charset, "charset");

@@ -29,17 +29,17 @@ import org.slf4j.LoggerFactory;
  * @since  0.0.1
  * @author <a href="https://github.com/ppalaga">Peter Palaga</a>
  */
-public class Command {
-    static final org.slf4j.Logger log = LoggerFactory.getLogger(Command.class);
+public class CommandSpec {
+    static final org.slf4j.Logger log = LoggerFactory.getLogger(CommandSpec.class);
 
     private final String executable;
     private final List<String> arguments;
     private final Map<String, String> env;
     private final Path cd;
-    private final Expectations expectations;
+    private final ExpectationsSpec expectations;
     private final boolean stderrToStdout;
 
-    Command(
+    CommandSpec(
             String executable,
             List<String> arguments) {
         this.executable = executable;
@@ -47,15 +47,15 @@ public class Command {
         this.env = Collections.emptyMap();
         this.cd = Paths.get(".").toAbsolutePath().normalize();
         this.stderrToStdout = false;
-        this.expectations = new Expectations(this, stderrToStdout);
+        this.expectations = new ExpectationsSpec(this, stderrToStdout);
     }
 
-    Command(
+    CommandSpec(
             String executable,
             List<String> arguments,
             Map<String, String> environment,
             Path cd,
-            Expectations expectations,
+            ExpectationsSpec expectations,
             boolean stderrToStdout) {
         this.executable = executable;
         this.arguments = arguments;
@@ -72,32 +72,33 @@ public class Command {
      *                    if the given command can be found in {@code PATH} environment variable
      * @param  arguments  the command arguments
      *
-     * @return            an adjusted copy of this {@link Command}
+     * @return            an adjusted copy of this {@link CommandSpec}
      * @since             0.0.1
      */
-    public Command command(String executable, String... arguments) {
-        return new Command(executable, CliAssertUtils.join(this.arguments, arguments), env, cd, expectations, stderrToStdout);
+    public CommandSpec command(String executable, String... arguments) {
+        return new CommandSpec(executable, CliAssertUtils.join(this.arguments, arguments), env, cd, expectations,
+                stderrToStdout);
     }
 
     /**
      * @param  executable an absolute or relative (to the current directory) path to the executable or a plain command name
      *                    if the given command can be found in {@code PATH} environment variable
-     * @return            an adjusted copy of this {@link Command}
+     * @return            an adjusted copy of this {@link CommandSpec}
      * @since             0.0.1
      */
-    public Command executable(String executable) {
-        return new Command(executable, arguments, env, cd, expectations, stderrToStdout);
+    public CommandSpec executable(String executable) {
+        return new CommandSpec(executable, arguments, env, cd, expectations, stderrToStdout);
     }
 
     /**
      * Sets the java command of the current JVM set as the {@link #executable}
      *
-     * @return an adjusted copy of this {@link Command}
+     * @return an adjusted copy of this {@link CommandSpec}
      * @since  0.0.1
      */
-    public Command java() {
+    public CommandSpec java() {
         final String exec = javaExecutable();
-        return new Command(exec, arguments, env, cd, expectations, stderrToStdout);
+        return new CommandSpec(exec, arguments, env, cd, expectations, stderrToStdout);
     }
 
     static String javaExecutable() {
@@ -118,33 +119,34 @@ public class Command {
      * Add a single command argument
      *
      * @param  arg the argument to add
-     * @return     an adjusted copy of this {@link Command}
+     * @return     an adjusted copy of this {@link CommandSpec}
      * @since      0.0.1
      */
-    public Command arg(String arg) {
-        return new Command(executable, CliAssertUtils.join(this.arguments, arg), env, cd, expectations, stderrToStdout);
+    public CommandSpec arg(String arg) {
+        return new CommandSpec(executable, CliAssertUtils.join(this.arguments, arg), env, cd, expectations, stderrToStdout);
     }
 
     /**
      * Add multiple command arguments
      *
      * @param  args the arguments to add
-     * @return      an adjusted copy of this {@link Command}
+     * @return      an adjusted copy of this {@link CommandSpec}
      * @since       0.0.1
      */
-    public Command args(String... args) {
-        return new Command(executable, CliAssertUtils.join(this.arguments, args), env, cd, expectations, stderrToStdout);
+    public CommandSpec args(String... args) {
+        return new CommandSpec(executable, CliAssertUtils.join(this.arguments, args), env, cd, expectations, stderrToStdout);
     }
 
     /**
      * Add multiple command arguments
      *
      * @param  args the arguments to add
-     * @return      an adjusted copy of this {@link Command}
+     * @return      an adjusted copy of this {@link CommandSpec}
      * @since       0.0.1
      */
-    public Command args(Collection<String> arguments) {
-        return new Command(executable, CliAssertUtils.join(this.arguments, arguments), env, cd, expectations, stderrToStdout);
+    public CommandSpec args(Collection<String> arguments) {
+        return new CommandSpec(executable, CliAssertUtils.join(this.arguments, arguments), env, cd, expectations,
+                stderrToStdout);
     }
 
     /**
@@ -152,36 +154,36 @@ public class Command {
      *
      * @param  name  name of the variable to add
      * @param  value value of the variable to add
-     * @return       an adjusted copy of this {@link Command}
+     * @return       an adjusted copy of this {@link CommandSpec}
      * @since        0.0.1
      */
-    public Command envVar(String name, String value) {
+    public CommandSpec envVar(String name, String value) {
         Map<String, String> e = new LinkedHashMap<>(this.env);
         e.put(name, value);
-        return new Command(executable, arguments, Collections.unmodifiableMap(e), cd, expectations, stderrToStdout);
+        return new CommandSpec(executable, arguments, Collections.unmodifiableMap(e), cd, expectations, stderrToStdout);
     }
 
     /**
      * Set multiple environment variables for the command
      *
      * @param  env the variables to add
-     * @return     an adjusted copy of this {@link Command}
+     * @return     an adjusted copy of this {@link CommandSpec}
      * @since      0.0.1
      */
-    public Command env(Map<String, String> env) {
+    public CommandSpec env(Map<String, String> env) {
         Map<String, String> e = new LinkedHashMap<>(this.env);
         e.putAll(env);
-        return new Command(executable, arguments, Collections.unmodifiableMap(e), cd, expectations, stderrToStdout);
+        return new CommandSpec(executable, arguments, Collections.unmodifiableMap(e), cd, expectations, stderrToStdout);
     }
 
     /**
      * Set multiple environment variables for the command
      *
      * @param  env the variables to add
-     * @return     an adjusted copy of this {@link Command}
+     * @return     an adjusted copy of this {@link CommandSpec}
      * @since      0.0.1
      */
-    public Command env(String... env) {
+    public CommandSpec env(String... env) {
         int cnt = env.length;
         if (cnt % 2 != 0) {
             throw new IllegalArgumentException("env(String[]) accepts only even number of arguments");
@@ -191,51 +193,51 @@ public class Command {
         while (i < cnt) {
             e.put(env[i++], env[i++]);
         }
-        return new Command(executable, arguments, Collections.unmodifiableMap(e), cd, expectations, stderrToStdout);
+        return new CommandSpec(executable, arguments, Collections.unmodifiableMap(e), cd, expectations, stderrToStdout);
     }
 
     /**
      * Set the given {@code workDirectory} to the undelying {@link Process}
      *
      * @param  workDirectory the work directory of the undelying {@link Process}
-     * @return               an adjusted copy of this {@link Command}
+     * @return               an adjusted copy of this {@link CommandSpec}
      * @since                0.0.1
      */
-    public Command cd(Path workDirectory) {
-        return new Command(executable, arguments, env, workDirectory, expectations, stderrToStdout);
+    public CommandSpec cd(Path workDirectory) {
+        return new CommandSpec(executable, arguments, env, workDirectory, expectations, stderrToStdout);
     }
 
     /**
      * Enable the redirection of {@code stderr} to {@code stdout}
      *
-     * @return an adjusted copy of this {@link Command}
+     * @return an adjusted copy of this {@link CommandSpec}
      * @since  0.0.1
      */
-    public Command stderrToStdout() {
-        return new Command(executable, arguments, env, cd, expectations, true);
+    public CommandSpec stderrToStdout() {
+        return new CommandSpec(executable, arguments, env, cd, expectations, true);
     }
 
     /**
      * @return a new {@link ExpectationsBuilder}
      * @since  0.0.1
      */
-    public Expectations expect() {
-        return new Expectations(this, stderrToStdout);
+    public ExpectationsSpec expect() {
+        return new ExpectationsSpec(this, stderrToStdout);
     }
 
     /**
-     * Impose the given {@link Expectations} on the command execution.
+     * Impose the given {@link ExpectationsSpec} on the command execution.
      *
      * @param  expectations the Expectations to set
-     * @return              an adjusted copy of this {@link Command}
+     * @return              an adjusted copy of this {@link CommandSpec}
      * @since               0.0.1
      */
-    Command expect(Expectations expectations) {
-        return new Command(executable, arguments, env, cd, expectations, stderrToStdout);
+    CommandSpec expect(ExpectationsSpec expectations) {
+        return new CommandSpec(executable, arguments, env, cd, expectations, stderrToStdout);
     }
 
     /**
-     * Start this {@link Command} and return a running {@link CommandProcess}.
+     * Start this {@link CommandSpec} and return a running {@link CommandProcess}.
      *
      * @return a {@link CommandProcess}
      *

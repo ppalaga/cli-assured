@@ -22,7 +22,7 @@ import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import org.l2x6.cli.assured.StreamExpectationsBuilder;
+import org.l2x6.cli.assured.StreamExpectationsSpec;
 
 /**
  * An assertion on a sequence of lines of a command output.
@@ -85,7 +85,7 @@ public interface LineAssert extends Assert {
      * @return        a new {@link LineAssert}
      * @since         0.0.1
      */
-    static LineAssert doesNotHaveAnyLines(StreamExpectationsBuilder.ProcessOutput stream) {
+    static LineAssert doesNotHaveAnyLines(StreamExpectationsSpec.ProcessOutput stream) {
         return new Internal.LinesAssert<String, String>(
                 Collections.emptyList(),
                 new LinkedHashSet<>(),

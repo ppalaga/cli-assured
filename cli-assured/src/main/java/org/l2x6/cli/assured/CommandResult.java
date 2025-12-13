@@ -61,7 +61,7 @@ public class CommandResult {
     }
 
     /**
-     * Assert that the execution of the command timed out as defined by the passed in {@link Command#timeoutMs}
+     * Assert that the execution of the command timed out as defined by the passed in {@link CommandSpec#timeoutMs}
      *
      * @return this {@link CommandResult}
      *
