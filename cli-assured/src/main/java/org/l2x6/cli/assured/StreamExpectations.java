@@ -6,6 +6,8 @@ package org.l2x6.cli.assured;
 
 import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
@@ -18,14 +20,23 @@ class StreamExpectations implements LineAssert {
     private final ByteCountAssert byteCountAssert;
     final Charset charset;
     final Supplier<OutputStream> redirect;
-    final OutputConsumer.Stream stream;
+    final StreamExpectationsBuilder.ProcessOutput stream;
+
+    static StreamExpectations hasNoLines(StreamExpectationsBuilder.ProcessOutput stream) {
+        return new StreamExpectations(
+                Collections.singletonList(LineAssert.doesNotHaveAnyLines(stream)),
+                null,
+                StandardCharsets.UTF_8,
+                null,
+                stream);
+    }
 
     StreamExpectations(
             List<LineAssert> lineAsserts,
             ByteCountAssert byteCountAssert,
             Charset charset,
             Supplier<OutputStream> redirect,
-            OutputConsumer.Stream stream) {
+            StreamExpectationsBuilder.ProcessOutput stream) {
         this.lineAsserts = Objects.requireNonNull(lineAsserts, "lineAsserts");
         this.byteCountAssert = byteCountAssert;
         this.charset = Objects.requireNonNull(charset, "charset");

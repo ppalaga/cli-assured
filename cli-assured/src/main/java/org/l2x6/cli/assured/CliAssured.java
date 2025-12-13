@@ -4,33 +4,37 @@
  */
 package org.l2x6.cli.assured;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+
 /**
  * @since  0.0.1
  * @author <a href="https://github.com/ppalaga">Peter Palaga</a>
  */
 public class CliAssured {
     /**
-     * @return a plain {@link CommandBuilder}
+     * @return a plain {@link Command}
      * @since  0.0.1
      */
-    public static CommandBuilder given() {
-        return new CommandBuilder();
+    public static Command given() {
+        return new Command(null, Collections.emptyList());
     }
 
     /**
-     * @return a {@link CommandBuilder} with the java exectuable of the current JVM set as
-     *         {@link CommandBuilder#executable(String)}
+     * @return a {@link Command} with the java exectuable of the current JVM set as
+     *         {@link Command#executable(String)}
      * @since  0.0.1
      */
-    public static CommandBuilder java() {
-        return new CommandBuilder().java();
+    public static Command java() {
+        return new Command(Command.javaExecutable(), Collections.emptyList());
     }
 
     /**
-     * @return a {@link CommandBuilder} with the specified command set
+     * @return a {@link Command} with the specified command set
      * @since  0.0.1
      */
-    public static CommandBuilder command(String executable, String... args) {
-        return new CommandBuilder().command(executable, args);
+    public static Command command(String executable, String... args) {
+        return new Command(executable, Collections.unmodifiableList(new ArrayList<>(Arrays.asList(args))));
     }
 }

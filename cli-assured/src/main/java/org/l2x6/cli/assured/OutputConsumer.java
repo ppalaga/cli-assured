@@ -21,10 +21,10 @@ abstract class OutputConsumer extends Thread implements Assert {
     protected volatile boolean cancelled;
     protected List<Throwable> exceptions = new ArrayList<>();
     protected final InputStream in;
-    protected final Stream stream;
+    protected final StreamExpectationsBuilder.ProcessOutput stream;
     protected final AtomicInteger byteCount = new AtomicInteger();
 
-    OutputConsumer(InputStream in, Stream stream) {
+    OutputConsumer(InputStream in, StreamExpectationsBuilder.ProcessOutput stream) {
         this.in = in;
         this.stream = stream;
     }
@@ -52,13 +52,9 @@ abstract class OutputConsumer extends Thread implements Assert {
         return byteCount.get();
     }
 
-    static enum Stream {
-        stdout, stderr
-    }
-
     static class DevNull extends OutputConsumer {
 
-        public DevNull(InputStream in, Stream stream) {
+        public DevNull(InputStream in, StreamExpectationsBuilder.ProcessOutput stream) {
             super(in, stream);
         }
 

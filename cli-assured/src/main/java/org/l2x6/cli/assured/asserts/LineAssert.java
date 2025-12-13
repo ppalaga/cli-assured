@@ -22,6 +22,7 @@ import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import org.l2x6.cli.assured.StreamExpectationsBuilder;
 
 /**
  * An assertion on a sequence of lines of a command output.
@@ -74,6 +75,24 @@ public interface LineAssert extends Assert {
                     }
                 },
                 "Expected none of the lines\n\n    %s\n\nto occur, but the following lines occurred:\n\n    %s\n\n");
+    }
+
+    /**
+     * Assert that no lines at all are not present in the underlying output stream.
+     *
+     * @param  stream
+     *
+     * @return        a new {@link LineAssert}
+     * @since         0.0.1
+     */
+    static LineAssert doesNotHaveAnyLines(StreamExpectationsBuilder.ProcessOutput stream) {
+        return new Internal.LinesAssert<String, String>(
+                Collections.emptyList(),
+                new LinkedHashSet<>(),
+                (line, hits) -> {
+                    hits.add(line);
+                },
+                "Expected no lines at all to occur in " + stream + ", but the following lines occurred:\n\n    %s\n\n");
     }
 
     /**

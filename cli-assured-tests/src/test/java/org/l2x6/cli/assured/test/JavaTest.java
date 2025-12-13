@@ -18,7 +18,7 @@ import java.util.UUID;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.l2x6.cli.assured.CliAssured;
-import org.l2x6.cli.assured.CommandBuilder;
+import org.l2x6.cli.assured.Command;
 import org.l2x6.cli.assured.CommandResult;
 import org.l2x6.cli.assured.StreamExpectationsBuilder;
 import org.l2x6.cli.assured.test.app.TestApp;
@@ -451,7 +451,7 @@ public class JavaTest {
                 .stderr();
     }
 
-    static CommandBuilder command(String... args) {
+    static Command command(String... args) {
         final String testAppArtifactId = "cli-assured-test-app";
         final String version = System.getProperty("project.version");
         Path testAppJar = Paths.get("../" + testAppArtifactId + "/target/" + testAppArtifactId + "-" + version + ".jar")

@@ -7,9 +7,14 @@ package org.l2x6.cli.assured;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -24,27 +29,209 @@ import org.slf4j.LoggerFactory;
  * @since  0.0.1
  * @author <a href="https://github.com/ppalaga">Peter Palaga</a>
  */
-class Command {
+public class Command {
     static final org.slf4j.Logger log = LoggerFactory.getLogger(Command.class);
 
+    private final String executable;
+    private final List<String> arguments;
     private final Map<String, String> env;
     private final Path cd;
-    private final String[] cmdArray;
-    final String cmdArrayString;
-    final Expectations expectations;
+    private final Expectations expectations;
+    private final boolean stderrToStdout;
+
+    Command(
+            String executable,
+            List<String> arguments) {
+        this.executable = executable;
+        this.arguments = arguments;
+        this.env = Collections.emptyMap();
+        this.cd = Paths.get(".").toAbsolutePath().normalize();
+        this.stderrToStdout = false;
+        this.expectations = new Expectations(this, stderrToStdout);
+    }
 
     Command(
             String executable,
             List<String> arguments,
             Map<String, String> environment,
             Path cd,
-            Expectations expectations) {
-        this.cmdArray = asCmdArray(Objects.requireNonNull(executable, "executable"),
-                Objects.requireNonNull(arguments, "arguments"));
+            Expectations expectations,
+            boolean stderrToStdout) {
+        this.executable = executable;
+        this.arguments = arguments;
         this.env = Objects.requireNonNull(environment, "environment");
         this.cd = Objects.requireNonNull(cd, "cd");
+        this.stderrToStdout = stderrToStdout;
         this.expectations = expectations;
-        this.cmdArrayString = Arrays.stream(cmdArray).collect(Collectors.joining(" "));
+    }
+
+    /**
+     * Set the executable of the command and its arguments
+     *
+     * @param  executable an absolute or relative (to the current directory) path to the executable or a plain command name
+     *                    if the given command can be found in {@code PATH} environment variable
+     * @param  arguments  the command arguments
+     *
+     * @return            an adjusted copy of this {@link Command}
+     * @since             0.0.1
+     */
+    public Command command(String executable, String... arguments) {
+        return new Command(executable, CliAssertUtils.join(this.arguments, arguments), env, cd, expectations, stderrToStdout);
+    }
+
+    /**
+     * @param  executable an absolute or relative (to the current directory) path to the executable or a plain command name
+     *                    if the given command can be found in {@code PATH} environment variable
+     * @return            an adjusted copy of this {@link Command}
+     * @since             0.0.1
+     */
+    public Command executable(String executable) {
+        return new Command(executable, arguments, env, cd, expectations, stderrToStdout);
+    }
+
+    /**
+     * Sets the java command of the current JVM set as the {@link #executable}
+     *
+     * @return an adjusted copy of this {@link Command}
+     * @since  0.0.1
+     */
+    public Command java() {
+        final String exec = javaExecutable();
+        return new Command(exec, arguments, env, cd, expectations, stderrToStdout);
+    }
+
+    static String javaExecutable() {
+        final Path javaHome = Paths.get(System.getProperty("java.home"));
+        Path java = javaHome.resolve("bin/java");
+        final String exec;
+        if (Files.isRegularFile(java)) {
+            exec = java.toString();
+        } else if (Files.isRegularFile(java = javaHome.resolve("bin/java.exe"))) {
+            exec = java.toString();
+        } else {
+            throw new IllegalStateException("Could not locate java or java.exe in " + javaHome.resolve("bin"));
+        }
+        return exec;
+    }
+
+    /**
+     * Add a single command argument
+     *
+     * @param  arg the argument to add
+     * @return     an adjusted copy of this {@link Command}
+     * @since      0.0.1
+     */
+    public Command arg(String arg) {
+        return new Command(executable, CliAssertUtils.join(this.arguments, arg), env, cd, expectations, stderrToStdout);
+    }
+
+    /**
+     * Add multiple command arguments
+     *
+     * @param  args the arguments to add
+     * @return      an adjusted copy of this {@link Command}
+     * @since       0.0.1
+     */
+    public Command args(String... args) {
+        return new Command(executable, CliAssertUtils.join(this.arguments, args), env, cd, expectations, stderrToStdout);
+    }
+
+    /**
+     * Add multiple command arguments
+     *
+     * @param  args the arguments to add
+     * @return      an adjusted copy of this {@link Command}
+     * @since       0.0.1
+     */
+    public Command args(Collection<String> arguments) {
+        return new Command(executable, CliAssertUtils.join(this.arguments, arguments), env, cd, expectations, stderrToStdout);
+    }
+
+    /**
+     * Set a single environment variable for the command
+     *
+     * @param  name  name of the variable to add
+     * @param  value value of the variable to add
+     * @return       an adjusted copy of this {@link Command}
+     * @since        0.0.1
+     */
+    public Command envVar(String name, String value) {
+        Map<String, String> e = new LinkedHashMap<>(this.env);
+        e.put(name, value);
+        return new Command(executable, arguments, Collections.unmodifiableMap(e), cd, expectations, stderrToStdout);
+    }
+
+    /**
+     * Set multiple environment variables for the command
+     *
+     * @param  env the variables to add
+     * @return     an adjusted copy of this {@link Command}
+     * @since      0.0.1
+     */
+    public Command env(Map<String, String> env) {
+        Map<String, String> e = new LinkedHashMap<>(this.env);
+        e.putAll(env);
+        return new Command(executable, arguments, Collections.unmodifiableMap(e), cd, expectations, stderrToStdout);
+    }
+
+    /**
+     * Set multiple environment variables for the command
+     *
+     * @param  env the variables to add
+     * @return     an adjusted copy of this {@link Command}
+     * @since      0.0.1
+     */
+    public Command env(String... env) {
+        int cnt = env.length;
+        if (cnt % 2 != 0) {
+            throw new IllegalArgumentException("env(String[]) accepts only even number of arguments");
+        }
+        Map<String, String> e = new LinkedHashMap<>(this.env);
+        int i = 0;
+        while (i < cnt) {
+            e.put(env[i++], env[i++]);
+        }
+        return new Command(executable, arguments, Collections.unmodifiableMap(e), cd, expectations, stderrToStdout);
+    }
+
+    /**
+     * Set the given {@code workDirectory} to the undelying {@link Process}
+     *
+     * @param  workDirectory the work directory of the undelying {@link Process}
+     * @return               an adjusted copy of this {@link Command}
+     * @since                0.0.1
+     */
+    public Command cd(Path workDirectory) {
+        return new Command(executable, arguments, env, workDirectory, expectations, stderrToStdout);
+    }
+
+    /**
+     * Enable the redirection of {@code stderr} to {@code stdout}
+     *
+     * @return an adjusted copy of this {@link Command}
+     * @since  0.0.1
+     */
+    public Command stderrToStdout() {
+        return new Command(executable, arguments, env, cd, expectations, true);
+    }
+
+    /**
+     * @return a new {@link ExpectationsBuilder}
+     * @since  0.0.1
+     */
+    public Expectations expect() {
+        return new Expectations(this, stderrToStdout);
+    }
+
+    /**
+     * Impose the given {@link Expectations} on the command execution.
+     *
+     * @param  expectations the Expectations to set
+     * @return              an adjusted copy of this {@link Command}
+     * @since               0.0.1
+     */
+    Command expect(Expectations expectations) {
+        return new Command(executable, arguments, env, cd, expectations, stderrToStdout);
     }
 
     /**
@@ -56,7 +243,8 @@ class Command {
      * @see    #execute()
      */
     public CommandProcess start() {
-        final boolean stderrToStdout = expectations.stderr == null;
+        String[] cmdArray = asCmdArray(executable, arguments);
+        String cmdArrayString = Arrays.stream(cmdArray).collect(Collectors.joining(" "));
         log.info(
                 "Executing\n\n    cd {} && {}{}\n\nwith env {}",
                 cd,
