@@ -18,14 +18,23 @@ import java.util.function.Supplier;
 import org.l2x6.cli.assured.StreamExpectationsSpec.StreamExpectations;
 import org.l2x6.cli.assured.asserts.Assert;
 
-abstract class OutputConsumer extends Thread implements Assert {
-    protected volatile boolean cancelled;
-    protected List<Throwable> exceptions = new ArrayList<>();
-    protected final InputStream in;
-    protected final StreamExpectationsSpec.ProcessOutput stream;
-    protected final AtomicInteger byteCount = new AtomicInteger();
+/**
+ * Hosts a thread for consuming {@code stdout} or {@code stderr} of a process.
+ *
+ * @author <a href="https://github.com/ppalaga">Peter Palaga</a>
+ * @since  0.0.1
+ */
+abstract class OutputConsumer implements Assert {
+    private static AtomicInteger threadCounter = new AtomicInteger();
+    private final Thread thread;
+    volatile boolean cancelled;
+    List<Throwable> exceptions = new ArrayList<>();
+    final InputStream in;
+    final StreamExpectationsSpec.ProcessOutput stream;
+    final AtomicInteger byteCount = new AtomicInteger();
 
     OutputConsumer(InputStream in, StreamExpectationsSpec.ProcessOutput stream) {
+        this.thread = new Thread(this::run, "CliAssured-" + stream + "-" + threadCounter.getAndIncrement());
         this.in = in;
         this.stream = stream;
     }
@@ -42,17 +51,30 @@ abstract class OutputConsumer extends Thread implements Assert {
         }
     }
 
-    @Override
-    public abstract void run();
+    void start() {
+        thread.start();
+    }
 
-    public void cancel() {
+    void join() throws InterruptedException {
+        thread.join();
+    }
+
+    abstract void run();
+
+    void cancel() {
         this.cancelled = true;
     }
 
-    public long byteCount() {
+    long byteCount() {
         return byteCount.get();
     }
 
+    /**
+     * Consumes the output of the {@link Process} ignoring the content but still counting the produced bytes.
+     *
+     * @author <a href="https://github.com/ppalaga">Peter Palaga</a>
+     * @since  0.0.1
+     */
     static class DevNull extends OutputConsumer {
 
         public DevNull(InputStream in, StreamExpectationsSpec.ProcessOutput stream) {
@@ -60,7 +82,7 @@ abstract class OutputConsumer extends Thread implements Assert {
         }
 
         @Override
-        public void run() {
+        void run() {
             byte[] bytes = new byte[1024];
             try {
                 int cnt;
@@ -74,6 +96,13 @@ abstract class OutputConsumer extends Thread implements Assert {
 
     }
 
+    /**
+     * Consumes the output of the {@link Process} passing the content to {@link StreamExpectations} and counting the
+     * produced bytes.
+     *
+     * @author <a href="https://github.com/ppalaga">Peter Palaga</a>
+     * @since  0.0.1
+     */
     static class OutputAsserts extends OutputConsumer {
         private final StreamExpectations streamExpectations;
 
@@ -83,7 +112,7 @@ abstract class OutputConsumer extends Thread implements Assert {
         }
 
         @Override
-        public void run() {
+        void run() {
             if (streamExpectations.hasLineAsserts()) {
                 try (BufferedReader r = new BufferedReader(
                         new InputStreamReader(redirect(in, streamExpectations.redirect()), streamExpectations.charset()))) {

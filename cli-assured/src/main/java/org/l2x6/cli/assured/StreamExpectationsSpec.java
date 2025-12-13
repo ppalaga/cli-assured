@@ -33,7 +33,7 @@ import org.l2x6.cli.assured.asserts.LineAssert;
 import org.slf4j.LoggerFactory;
 
 /**
- * A {@link StreamExpectations} builder.
+ * Assertions applicable to {@code stdout} or {@code stderr} of a {@link CommandProcess}.
  *
  * @since  0.0.1
  * @author <a href="https://github.com/ppalaga">Peter Palaga</a>
@@ -78,7 +78,7 @@ public class StreamExpectationsSpec {
      * Assert that the given {@link LineAssert}s are satisfied.
      *
      * @param  lines the whole lines to look for
-     * @return       this {@link StreamExpectationsSpec}
+     * @return       an adjusted copy of this {@link StreamExpectationsSpec}
      * @since        0.0.1
      */
     public StreamExpectationsSpec linesSatisfy(LineAssert... asserts) {
@@ -90,7 +90,7 @@ public class StreamExpectationsSpec {
      * Assert that the given {@link LineAssert}s are satisfied.
      *
      * @param  lines the whole lines to look for
-     * @return       this {@link StreamExpectationsSpec}
+     * @return       an adjusted copy of this {@link StreamExpectationsSpec}
      * @since        0.0.1
      */
     public StreamExpectationsSpec linesSatisfy(Collection<LineAssert> asserts) {
@@ -102,7 +102,7 @@ public class StreamExpectationsSpec {
      * Assert that the given lines are present in the underlying output stream among other lines in any order.
      *
      * @param  lines the whole lines to look for
-     * @return       this {@link StreamExpectationsSpec}
+     * @return       an adjusted copy of this {@link StreamExpectationsSpec}
      * @since        0.0.1
      */
     public StreamExpectationsSpec hasLines(String... lines) {
@@ -115,7 +115,7 @@ public class StreamExpectationsSpec {
      * Assert that the given lines are present in the underlying output stream among other lines in any order.
      *
      * @param  lines the whole lines to look for
-     * @return       this {@link StreamExpectationsSpec}
+     * @return       an adjusted copy of this {@link StreamExpectationsSpec}
      * @since        0.0.1
      */
     public StreamExpectationsSpec hasLines(Collection<String> lines) {
@@ -127,7 +127,7 @@ public class StreamExpectationsSpec {
      * Assert that the given lines are not present in the underlying output stream.
      *
      * @param  lines the whole lines to look for
-     * @return       this {@link StreamExpectationsSpec}
+     * @return       an adjusted copy of this {@link StreamExpectationsSpec}
      * @since        0.0.1
      */
     public StreamExpectationsSpec doesNotHaveLines(String... lines) {
@@ -140,7 +140,7 @@ public class StreamExpectationsSpec {
      * Assert that the given lines are not present in the underlying output stream.
      *
      * @param  lines the whole lines to look for
-     * @return       this {@link StreamExpectationsSpec}
+     * @return       an adjusted copy of this {@link StreamExpectationsSpec}
      * @since        0.0.1
      */
     public StreamExpectationsSpec doesNotHaveLines(Collection<String> lines) {
@@ -153,7 +153,7 @@ public class StreamExpectationsSpec {
      * number of lines.
      *
      * @param  expectedLineCount
-     * @return                   this {@link StreamExpectationsSpec}
+     * @return                   an adjusted copy of this {@link StreamExpectationsSpec}
      * @since                    0.0.1
      */
     public StreamExpectationsSpec hasLineCount(int expectedLineCount) {
@@ -169,7 +169,7 @@ public class StreamExpectationsSpec {
      * @param  expected    the condition the number of actual lines must satisfy
      * @param  description the description of a failure typically something like
      *                     {@code "Expected number of lines <condition> but found %d lines"}
-     * @return             this {@link StreamExpectationsSpec}
+     * @return             an adjusted copy of this {@link StreamExpectationsSpec}
      * @since              0.0.1
      */
     public StreamExpectationsSpec hasLineCount(Predicate<Integer> expected, String description) {
@@ -183,7 +183,7 @@ public class StreamExpectationsSpec {
      * bytes.
      *
      * @param  expectedByteCount the number of bytes to enforce
-     * @return                   this {@link StreamExpectationsSpec}
+     * @return                   an adjusted copy of this {@link StreamExpectationsSpec}
      * @since                    0.0.1
      */
     public StreamExpectationsSpec hasByteCount(long expectedByteCount) {
@@ -198,7 +198,7 @@ public class StreamExpectationsSpec {
      * @param  expected    the condition the number of actual bytes must satisfy
      * @param  description the description of a failure, typically something like
      *                     {@code "Expected number of bytes <condition> but found %d bytes"}
-     * @return             this {@link StreamExpectationsSpec}
+     * @return             an adjusted copy of this {@link StreamExpectationsSpec}
      * @since              0.0.1
      */
     public StreamExpectationsSpec hasByteCount(Predicate<Long> expected, String description) {
@@ -211,7 +211,7 @@ public class StreamExpectationsSpec {
      * An equivalent of {@link #hasByteCount(long) hasByteCount(0)}.
      *
      * @param  expectedLineCount
-     * @return                   this {@link StreamExpectationsSpec}
+     * @return                   an adjusted copy of this {@link StreamExpectationsSpec}
      * @since                    0.0.1
      */
     public StreamExpectationsSpec isEmpty() {
@@ -223,7 +223,7 @@ public class StreamExpectationsSpec {
      * lines in any order.
      *
      * @param  substrings the substrings to look for in the associated output stream
-     * @return            this {@link StreamExpectationsSpec}
+     * @return            an adjusted copy of this {@link StreamExpectationsSpec}
      * @since             0.0.1
      */
     public StreamExpectationsSpec hasLinesContaining(String... substrings) {
@@ -237,7 +237,7 @@ public class StreamExpectationsSpec {
      * lines in any order.
      *
      * @param  substrings the substrings to look for in the associated output stream
-     * @return            this {@link StreamExpectationsSpec}
+     * @return            an adjusted copy of this {@link StreamExpectationsSpec}
      * @since             0.0.1
      */
     public StreamExpectationsSpec hasLinesContaining(Collection<String> substrings) {
@@ -250,7 +250,7 @@ public class StreamExpectationsSpec {
      * Assert that lines containing the given {@code substrings} are not present in the underlying output stream.
      *
      * @param  substrings the substrings to look for in the associated output stream
-     * @return            this {@link StreamExpectationsSpec}
+     * @return            an adjusted copy of this {@link StreamExpectationsSpec}
      * @since             0.0.1
      */
     public StreamExpectationsSpec doesNotHaveLinesContaining(String... substrings) {
@@ -263,7 +263,7 @@ public class StreamExpectationsSpec {
      * Assert that lines containing the given {@code substrings} are not present in the underlying output stream.
      *
      * @param  substrings the substrings to look for in the associated output stream
-     * @return            this {@link StreamExpectationsSpec}
+     * @return            an adjusted copy of this {@link StreamExpectationsSpec}
      * @since             0.0.1
      */
     public StreamExpectationsSpec doesNotHaveLinesContaining(Collection<String> substrings) {
@@ -278,7 +278,7 @@ public class StreamExpectationsSpec {
      * lines in any order.
      *
      * @param  substrings the substrings to look for in the associated output stream
-     * @return            this {@link StreamExpectationsSpec}
+     * @return            an adjusted copy of this {@link StreamExpectationsSpec}
      * @since             0.0.1
      */
     public StreamExpectationsSpec hasLinesContainingCaseInsensitive(String... substrings) {
@@ -294,7 +294,7 @@ public class StreamExpectationsSpec {
      * lines in any order.
      *
      * @param  substrings the substrings to look for in the associated output stream
-     * @return            this {@link StreamExpectationsSpec}
+     * @return            an adjusted copy of this {@link StreamExpectationsSpec}
      * @since             0.0.1
      */
     public StreamExpectationsSpec hasLinesContainingCaseInsensitive(Collection<String> substrings) {
@@ -309,7 +309,7 @@ public class StreamExpectationsSpec {
      * underlying output stream.
      *
      * @param  substrings the substrings to look for in the associated output stream
-     * @return            this {@link StreamExpectationsSpec}
+     * @return            an adjusted copy of this {@link StreamExpectationsSpec}
      * @since             0.0.1
      */
     public StreamExpectationsSpec doesNotHaveLinesContainingCaseInsensitive(String... substrings) {
@@ -324,7 +324,7 @@ public class StreamExpectationsSpec {
      * underlying output stream.
      *
      * @param  substrings the substrings to look for in the associated output stream
-     * @return            this {@link StreamExpectationsSpec}
+     * @return            an adjusted copy of this {@link StreamExpectationsSpec}
      * @since             0.0.1
      */
     public StreamExpectationsSpec doesNotHaveLinesContainingCaseInsensitive(Collection<String> substrings) {
@@ -340,7 +340,7 @@ public class StreamExpectationsSpec {
      * The regular expression is evaluated using {@link Matcher#find()} rather than {@link Matcher#matches()}
      *
      * @param  regex the regular expressions to look for in the associated output stream
-     * @return       this {@link StreamExpectationsSpec}
+     * @return       an adjusted copy of this {@link StreamExpectationsSpec}
      * @since        0.0.1
      */
     public StreamExpectationsSpec hasLinesMatching(Collection<String> regex) {
@@ -354,7 +354,7 @@ public class StreamExpectationsSpec {
      * The regular expression is evaluated using {@link Matcher#find()} rather than {@link Matcher#matches()}
      *
      * @param  regex the regular expressions to look for in the associated output stream
-     * @return       this {@link StreamExpectationsSpec}
+     * @return       an adjusted copy of this {@link StreamExpectationsSpec}
      * @since        0.0.1
      */
     public StreamExpectationsSpec hasLinesMatching(String... regex) {
@@ -369,7 +369,7 @@ public class StreamExpectationsSpec {
      * The regular expression is evaluated using {@link Matcher#find()} rather than {@link Matcher#matches()}
      *
      * @param  regex the regular expressions to look for in the associated output stream
-     * @return       this {@link StreamExpectationsSpec}
+     * @return       an adjusted copy of this {@link StreamExpectationsSpec}
      * @since        0.0.1
      */
     public StreamExpectationsSpec hasLinesMatching(Pattern... regex) {
@@ -383,7 +383,7 @@ public class StreamExpectationsSpec {
      * The regular expression is evaluated using {@link Matcher#find()} rather than {@link Matcher#matches()}
      *
      * @param  regex the regular expressions to look for in the associated output stream
-     * @return       this {@link StreamExpectationsSpec}
+     * @return       an adjusted copy of this {@link StreamExpectationsSpec}
      * @since        0.0.1
      */
     public StreamExpectationsSpec doesNotHaveLinesMatching(Collection<String> regex) {
@@ -397,7 +397,7 @@ public class StreamExpectationsSpec {
      * The regular expression is evaluated using {@link Matcher#find()} rather than {@link Matcher#matches()}
      *
      * @param  regex the regular expressions to look for in the associated output stream
-     * @return       this {@link StreamExpectationsSpec}
+     * @return       an adjusted copy of this {@link StreamExpectationsSpec}
      * @since        0.0.1
      */
     public StreamExpectationsSpec doesNotHaveLinesMatching(String... regex) {
@@ -411,7 +411,7 @@ public class StreamExpectationsSpec {
      * The regular expression is evaluated using {@link Matcher#find()} rather than {@link Matcher#matches()}
      *
      * @param  regex the regular expressions to look for in the associated output stream
-     * @return       this {@link StreamExpectationsSpec}
+     * @return       an adjusted copy of this {@link StreamExpectationsSpec}
      * @since        0.0.1
      */
     public StreamExpectationsSpec doesNotHaveLinesMatching(Pattern... regex) {
@@ -424,7 +424,7 @@ public class StreamExpectationsSpec {
      * Read the underlying {@link InputStream} using the given {@code charset}
      *
      * @param  charset the character encoding to use when reading the underlying {@link InputStream}
-     * @return         this {@link StreamExpectationsSpec}
+     * @return         an adjusted copy of this {@link StreamExpectationsSpec}
      * @since          0.0.1
      */
     public StreamExpectationsSpec charset(Charset charset) {
@@ -435,7 +435,7 @@ public class StreamExpectationsSpec {
      * Redirect the output to the given {@code file}.
      *
      * @param  file where to store the output of the underlying command
-     * @return      this {@link StreamExpectationsSpec}
+     * @return      an adjusted copy of this {@link StreamExpectationsSpec}
      * @since       0.0.1
      */
     public StreamExpectationsSpec redirect(Path file) {
@@ -454,7 +454,7 @@ public class StreamExpectationsSpec {
      * The caller should take care to do so.
      *
      * @param  outputStream where to redirect the output of the underlying command
-     * @return              this {@link StreamExpectationsSpec}
+     * @return              an adjusted copy of an adjusted copy of this {@link StreamExpectationsSpec}
      * @since               0.0.1
      */
     public StreamExpectationsSpec redirect(OutputStream outputStream) {
@@ -465,7 +465,7 @@ public class StreamExpectationsSpec {
     /**
      * Log each line of the output at {@code INFO} level using {@code org.l2x6.cli.assured.[stdout|stderr]} logger.
      *
-     * @return this {@link StreamExpectationsSpec}
+     * @return an adjusted copy of this {@link StreamExpectationsSpec}
      * @since  0.0.1
      */
     public StreamExpectationsSpec log() {
@@ -480,7 +480,7 @@ public class StreamExpectationsSpec {
      * method will be called from an output consuming thread.
      *
      * @param  logger a {@link Consumer} to notify about every new line.
-     * @return        this {@link StreamExpectationsSpec}
+     * @return        an adjusted copy of this {@link StreamExpectationsSpec}
      * @since         0.0.1
      */
     public StreamExpectationsSpec log(Consumer<String> logger) {
@@ -501,9 +501,9 @@ public class StreamExpectationsSpec {
     }
 
     /**
-     * A shorthand for {@link #parent()}..{@link ExpectationsBuilder#stderr() stderr()}
+     * A shorthand for {@link #parent()}..{@link ExpectationsSpec#stderr() stderr()}
      *
-     * @return a new {@link OutputConsumer.CommandBuilder} to configure assertions for stderr
+     * @return a new {@link StreamExpectationsSpec} to configure assertions for {@code stderr}
      * @since  0.0.1
      */
     public StreamExpectationsSpec stderr() {
@@ -512,8 +512,8 @@ public class StreamExpectationsSpec {
 
     /**
      * Build new {@link StreamExpectations} from this {@link StreamExpectationsSpec}, pass it to the parent
-     * {@link ExpectationsBuilder}, pass them to the parent {@link CommandBuilder}
-     * and start the command.
+     * {@link ExpectationsSpec}, pass them to the parent {@link CommandSpec}
+     * and start the {@link CommandProcess}.
      *
      * @return a started {@link CommandProcess}
      * @since  0.0.1
@@ -525,7 +525,7 @@ public class StreamExpectationsSpec {
 
     /**
      * Build new {@link StreamExpectations} from this {@link StreamExpectationsSpec}, pass it to the parent
-     * {@link ExpectationsBuilder}, pass them to the parent {@link CommandBuilder},
+     * {@link ExpectationsSpec}, pass them to the parent {@link CommandSpec}, start
      * the {@link CommandProcess} and await (potentially indefinitely) its termination.
      * A shorthand for {@link #start()}.{@link CommandProcess#awaitTermination() awaitTermination()}
      *
@@ -538,8 +538,8 @@ public class StreamExpectationsSpec {
 
     /**
      * Build new {@link StreamExpectations} from this {@link StreamExpectationsSpec}, pass it to the parent
-     * {@link ExpectationsBuilder}, pass them to the parent {@link CommandBuilder},
-     * start the {@link CommandProcess} and await (potentially indefinitely) its termination at most for the specified
+     * {@link ExpectationsSpec}, pass them to the parent {@link CommandSpec}, start
+     * the {@link CommandProcess} and await its termination at most for the specified
      * duration.
      * A shorthand for {@link #start()}.{@link CommandProcess#awaitTermination(Duration) awaitTermination(Duration)}
      *
@@ -554,10 +554,10 @@ public class StreamExpectationsSpec {
 
     /**
      * Build new {@link StreamExpectations} from this {@link StreamExpectationsSpec}, pass it to the parent
-     * {@link ExpectationsBuilder}, pass them to the parent {@link CommandBuilder},
-     * the {@link CommandProcess} and await (potentially indefinitely) its termination at most for the specified
+     * {@link ExpectationsSpec}, pass them to the parent {@link CommandSpec}, start
+     * the {@link CommandProcess} and await its termination at most for the specified
      * timeout in milliseconds.
-     * A shorthand for {@link #start()}.{@link CommandProcess#awaitTermination(Duration) awaitTermination(Duration)}
+     * A shorthand for {@link #start()}.{@link CommandProcess#awaitTermination(long) awaitTermination(long)}
      *
      * @param  timeoutMs maximum time in milliseconds to wait for the underlying process to terminate
      *

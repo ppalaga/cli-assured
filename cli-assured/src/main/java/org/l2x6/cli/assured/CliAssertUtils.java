@@ -10,6 +10,9 @@ import java.util.Collections;
 import java.util.List;
 
 class CliAssertUtils {
+    private CliAssertUtils() {
+    }
+
     static <T> List<T> join(List<T> base, T[] array) {
         final List<T> args = new ArrayList<>(base.size() + array.length);
         args.addAll(base);

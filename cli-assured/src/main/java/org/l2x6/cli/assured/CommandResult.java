@@ -44,7 +44,7 @@ public class CommandResult {
      * Assert that the execution of the command was successful, namely that
      * <ul>
      * <li>No exception was thrown
-     * <li>All assertions defined via {@link CommandBuilder#expect()} are satisfied
+     * <li>All assertions defined via {@link CommandSpec#expect()} are satisfied
      * </ul>
      *
      * @return this {@link CommandResult}
@@ -61,7 +61,9 @@ public class CommandResult {
     }
 
     /**
-     * Assert that the execution of the command timed out as defined by the passed in {@link CommandSpec#timeoutMs}
+     * Assert that the execution of the command timed out in accordance with the timeout value passe via
+     * {@link CommandProcess#awaitTermination(Duration)}, {@link CommandProcess#awaitTermination(long)},
+     * {@link CommandSpec#execute(Duration)} or {@link CommandSpec#execute(long)}
      *
      * @return this {@link CommandResult}
      *

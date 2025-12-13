@@ -18,7 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Assertions applicable to an output of a {@link CommandProcess} or its exit code.
+ * Assertions applicable to {@code stdout}, {@code stderr} or an exit code of a {@link CommandProcess}.
  *
  * @since  0.0.1
  * @author <a href="https://github.com/ppalaga">Peter Palaga</a>
@@ -54,7 +54,7 @@ public class ExpectationsSpec {
     }
 
     /**
-     * @return new {@link StreamExpectationsSpec}
+     * @return new {@link StreamExpectationsSpec} for defining assertions on {@code stdout}
      * @since  0.0.1
      */
     public StreamExpectationsSpec stdout() {
@@ -62,7 +62,7 @@ public class ExpectationsSpec {
     }
 
     /**
-     * @return new {@link StreamExpectationsSpec}
+     * @return new {@link StreamExpectationsSpec} for defining assertions on {@code stderr}
      * @since  0.0.1
      */
     public StreamExpectationsSpec stderr() {
@@ -93,8 +93,7 @@ public class ExpectationsSpec {
     }
 
     /**
-     * Build new {@link ExpectationsSpec}, pass them to the parent {@link CommandBuilder}
-     * and start the command.
+     * Pass this {@link ExpectationsSpec} to the parent {@link CommandSpec} and start the {@link CommandProcess}.
      *
      * @return a new {@link CommandProcess}
      * @since  0.0.1
@@ -105,7 +104,7 @@ public class ExpectationsSpec {
     }
 
     /**
-     * Build new {@link ExpectationsSpec}, pass them to the parent {@link CommandBuilder},
+     * Pass this {@link ExpectationsSpec} to the parent {@link CommandSpec},
      * start the {@link CommandProcess} and awaits (potentially indefinitely) its termination.
      * A shorthand for {@link #start()}.{@link CommandProcess#awaitTermination() awaitTermination()}
      *
@@ -117,9 +116,8 @@ public class ExpectationsSpec {
     }
 
     /**
-     * Build new {@link ExpectationsSpec}, pass them to the parent {@link CommandBuilder} and the {@link CommandProcess}
-     * and
-     * awaits (potentially indefinitely) its termination at most for the specified
+     * Pass this {@link ExpectationsSpec} to the parent {@link CommandSpec},
+     * start the {@link CommandProcess} and await its termination at most for the specified
      * duration.
      * A shorthand for {@link #start()}.{@link CommandProcess#awaitTermination(Duration) awaitTermination(Duration)}
      *
@@ -133,9 +131,8 @@ public class ExpectationsSpec {
     }
 
     /**
-     * Build new {@link ExpectationsSpec}, pass them to the parent {@link CommandBuilder} and the {@link CommandProcess}
-     * and
-     * awaits (potentially indefinitely) its termination at most for the specified
+     * Pass this {@link ExpectationsSpec} to the parent {@link CommandSpec},
+     * start the {@link CommandProcess} and await its termination at most for the specified
      * timeout in milliseconds.
      * A shorthand for {@link #start()}.{@link CommandProcess#awaitTermination(Duration) awaitTermination(Duration)}
      *

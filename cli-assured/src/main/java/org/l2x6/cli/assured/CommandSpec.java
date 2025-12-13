@@ -218,7 +218,7 @@ public class CommandSpec {
     }
 
     /**
-     * @return a new {@link ExpectationsBuilder}
+     * @return a new {@link ExpectationsSpec}
      * @since  0.0.1
      */
     public ExpectationsSpec expect() {

@@ -9,6 +9,8 @@ import java.util.Arrays;
 import java.util.Collections;
 
 /**
+ * Entry methods for building command assertions.
+ *
  * @since  0.0.1
  * @author <a href="https://github.com/ppalaga">Peter Palaga</a>
  */
@@ -31,8 +33,11 @@ public class CliAssured {
     }
 
     /**
-     * @return a {@link CommandSpec} with the specified command set
-     * @since  0.0.1
+     * @param  executable the executable to set on the returned {@link CommandSpec}
+     * @param  args       the arguments to set on the returned {@link CommandSpec}
+     * @return            a {@link CommandSpec} with the specified {@code executable} and {@code args} set
+     * @since             0.0.1
+     * @return
      */
     public static CommandSpec command(String executable, String... args) {
         return new CommandSpec(executable, Collections.unmodifiableList(new ArrayList<>(Arrays.asList(args))));
