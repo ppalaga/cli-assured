@@ -30,9 +30,9 @@ public class EchoTest {
         // @formatter:off
         CliAssured
                 .given()
-                    .env("GREETING", "CLI Assured rocks!")
+                    .env("MESSAGE", "CLI Assured rocks!")
                 .when()
-                    .command("sh", "-c", "echo $GREETING")
+                    .command("sh", "-c", "echo $MESSAGE")
                 .then()
                     .stdout()
                     .hasLines("CLI Assured rocks!")

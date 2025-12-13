@@ -17,8 +17,10 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.l2x6.cli.assured.asserts.Assert;
 import org.slf4j.LoggerFactory;
@@ -30,7 +32,8 @@ import org.slf4j.LoggerFactory;
  * @author <a href="https://github.com/ppalaga">Peter Palaga</a>
  */
 public class CommandSpec {
-    static final org.slf4j.Logger log = LoggerFactory.getLogger(CommandSpec.class);
+    private static final org.slf4j.Logger log = LoggerFactory.getLogger(CommandSpec.class);
+    private static final Pattern WS_PATTERN = Pattern.compile("\\s");
 
     private final String executable;
     private final List<String> arguments;
@@ -272,10 +275,11 @@ public class CommandSpec {
      */
     public CommandProcess start() {
         String[] cmdArray = asCmdArray(executable, arguments);
-        String cmdArrayString = Arrays.stream(cmdArray).collect(Collectors.joining(" "));
+        String cmdArrayString = Arrays.stream(cmdArray).map(CommandSpec::quote).collect(Collectors.joining(" "));
         log.info(
-                "Executing\n\n    cd {} && {}{}\n\nwith env {}",
+                "Executing\n\n    cd {} &&{} {}{}\n",
                 cd,
+                envString(env),
                 cmdArrayString,
                 stderrToStdout ? " 2>&1" : "",
                 env);
@@ -355,6 +359,10 @@ public class CommandSpec {
      *         {@link ProcessBuilder#command(String...)}
      */
     String[] asCmdArray(String executable, List<String> args) {
+        if (executable == null) {
+            throw new IllegalStateException("executable must be specified before starting the command process."
+                    + " You may want to call CommandSpec.executable(String) or CommandSpec.command(String, String...)");
+        }
         String[] result = new String[args.size() + 1];
         int i = 0;
         result[i++] = executable;
@@ -368,5 +376,23 @@ public class CommandSpec {
             OutputConsumer err) {
         return err == null ? Assert.all(out, expectations.exitCodeAssert)
                 : Assert.all(out, err, expectations.exitCodeAssert);
+    }
+
+    static String envString(Map<String, String> env) {
+        if (env.isEmpty()) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        for (Entry<String, String> en : env.entrySet()) {
+            sb.append(' ').append(en.getKey()).append('=').append(quote(en.getValue()));
+        }
+        return sb.toString();
+    }
+
+    static String quote(String string) {
+        if (WS_PATTERN.matcher(string).find()) {
+            return "\"" + string.replace("\"", "\\\"") + "\"";
+        }
+        return string;
     }
 }
