@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
+import org.l2x6.cli.assured.StreamExpectationsBuilder.StreamExpectations;
 import org.l2x6.cli.assured.asserts.Assert;
 
 abstract class OutputConsumer extends Thread implements Assert {

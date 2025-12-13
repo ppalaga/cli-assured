@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 import org.l2x6.cli.assured.OutputConsumer.DevNull;
 import org.l2x6.cli.assured.OutputConsumer.OutputAsserts;
 import org.l2x6.cli.assured.StreamExpectationsBuilder.ProcessOutput;
+import org.l2x6.cli.assured.StreamExpectationsBuilder.StreamExpectations;
 import org.l2x6.cli.assured.asserts.ExitCodeAssert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

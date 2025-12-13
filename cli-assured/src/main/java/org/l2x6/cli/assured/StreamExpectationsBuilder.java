@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -586,6 +587,67 @@ public class StreamExpectationsBuilder {
      */
     Expectations parent() {
         return expectations.apply(build());
+    }
+
+    static class StreamExpectations implements LineAssert {
+
+        private final List<LineAssert> lineAsserts;
+        private final ByteCountAssert byteCountAssert;
+        final Charset charset;
+        final Supplier<OutputStream> redirect;
+        final StreamExpectationsBuilder.ProcessOutput stream;
+
+        static StreamExpectations hasNoLines(StreamExpectationsBuilder.ProcessOutput stream) {
+            return new StreamExpectations(
+                    Collections.singletonList(LineAssert.doesNotHaveAnyLines(stream)),
+                    null,
+                    StandardCharsets.UTF_8,
+                    null,
+                    stream);
+        }
+
+        StreamExpectations(
+                List<LineAssert> lineAsserts,
+                ByteCountAssert byteCountAssert,
+                Charset charset,
+                Supplier<OutputStream> redirect,
+                StreamExpectationsBuilder.ProcessOutput stream) {
+            this.lineAsserts = Objects.requireNonNull(lineAsserts, "lineAsserts");
+            this.byteCountAssert = byteCountAssert;
+            this.charset = Objects.requireNonNull(charset, "charset");
+            this.redirect = redirect;
+            this.stream = stream;
+        }
+
+        @Override
+        public void assertSatisfied() {
+            lineAsserts.stream().forEach(LineAssert::assertSatisfied);
+        }
+
+        public void assertSatisfied(long byteCount) {
+            lineAsserts.stream().forEach(LineAssert::assertSatisfied);
+            if (byteCountAssert != null) {
+                byteCountAssert.byteCount(byteCount).assertSatisfied();
+            }
+        }
+
+        @Override
+        public StreamExpectations line(String line) {
+            lineAsserts.stream().forEach(a -> a.line(line));
+            return this;
+        }
+
+        public Charset charset() {
+            return charset;
+        }
+
+        public Supplier<OutputStream> redirect() {
+            return redirect;
+        }
+
+        public boolean hasLineAsserts() {
+            return lineAsserts.size() > 0;
+        }
     }
 
     static class NonClosingOut extends FilterOutputStream {
