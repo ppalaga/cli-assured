@@ -40,5 +40,10 @@
             <artifactId>slf4j-simple</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>3.21.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 </project>

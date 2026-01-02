@@ -357,6 +357,7 @@ SPDX-License-Identifier: Apache-2.0</inlineHeader>
                                         <exclude>**/create-extension-templates/*</exclude>
                                         <exclude>**/README.*</exclude>
                                         <exclude>**/.gitkeep</exclude>
+                                        <exclude>**/ComparableVersion.java</exclude><!-- Keep the original header -->
                                         <exclude>.gitattributes/</exclude>
                                         <exclude>.mvn/wrapper/</exclude>
                                         <exclude>LICENSE</exclude>

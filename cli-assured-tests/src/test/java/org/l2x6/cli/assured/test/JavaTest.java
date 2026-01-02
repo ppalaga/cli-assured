@@ -24,8 +24,8 @@ import org.junit.jupiter.api.Test;
 import org.l2x6.cli.assured.CliAssured;
 import org.l2x6.cli.assured.CommandProcess;
 import org.l2x6.cli.assured.CommandResult;
-import org.l2x6.cli.assured.CommandSpec;
 import org.l2x6.cli.assured.StreamExpectationsSpec;
+import org.l2x6.cli.assured.mvn.MavenTest;
 import org.l2x6.cli.assured.test.app.TestApp;
 
 public class JavaTest {
@@ -701,7 +701,7 @@ public class JavaTest {
                 .stderr();
     }
 
-    public static CommandSpec command(String... args) {
+    public static MavenTest command(String... args) {
         final String testAppArtifactId = "cli-assured-test-app";
         final String version = System.getProperty("project.version");
         Path testAppJar = Paths.get("../" + testAppArtifactId + "/target/" + testAppArtifactId + "-" + version + ".jar")

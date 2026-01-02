@@ -26,6 +26,7 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.l2x6.cli.assured.CliAssertUtils.ExcludeFromJacocoGeneratedReport;
@@ -43,7 +44,7 @@ public class CommandSpec {
     private static final Pattern WS_PATTERN = Pattern.compile("\\s");
     private static AtomicInteger threadCounter = new AtomicInteger();
 
-    private final String executable;
+    private final Supplier<String> executable;
     private final List<String> arguments;
     private final Map<String, String> env;
     private final Path cd;
@@ -53,7 +54,7 @@ public class CommandSpec {
     private final int threadIndex;
 
     CommandSpec(
-            String executable,
+            Supplier<String> executable,
             List<String> arguments) {
         this.executable = executable;
         this.arguments = arguments;
@@ -66,7 +67,7 @@ public class CommandSpec {
     }
 
     CommandSpec(
-            String executable,
+            Supplier<String> executable,
             List<String> arguments,
             Map<String, String> environment,
             Path cd,
@@ -87,7 +88,8 @@ public class CommandSpec {
     /**
      * Set the executable of the command and its arguments
      *
-     * @param  executable an absolute or relative (to the current directory) path to the executable or a plain command name
+     * @param  executable an absolute or relative (to the current directory) path to the executable or a plain command
+     *                    name
      *                    if the given command can be found in {@code PATH} environment variable
      * @param  arguments  the command arguments
      *
@@ -95,18 +97,19 @@ public class CommandSpec {
      * @since             0.0.1
      */
     public CommandSpec command(String executable, String... arguments) {
-        return new CommandSpec(executable, CliAssertUtils.join(this.arguments, arguments), env, cd, expectations,
+        return new CommandSpec(() -> executable, CliAssertUtils.join(this.arguments, arguments), env, cd, expectations,
                 stderrToStdout, stdin, threadIndex);
     }
 
     /**
-     * @param  executable an absolute or relative (to the current directory) path to the executable or a plain command name
+     * @param  executable an absolute or relative (to the current directory) path to the executable or a plain command
+     *                    name
      *                    if the given command can be found in {@code PATH} environment variable
      * @return            an adjusted copy of this {@link CommandSpec}
      * @since             0.0.1
      */
     public CommandSpec executable(String executable) {
-        return new CommandSpec(executable, arguments, env, cd, expectations, stderrToStdout, stdin, threadIndex);
+        return new CommandSpec(() -> executable, arguments, env, cd, expectations, stderrToStdout, stdin, threadIndex);
     }
 
     /**
@@ -117,7 +120,17 @@ public class CommandSpec {
      */
     public CommandSpec java() {
         final String exec = javaExecutable();
-        return new CommandSpec(exec, arguments, env, cd, expectations, stderrToStdout, stdin, threadIndex);
+        return new CommandSpec(() -> exec, arguments, env, cd, expectations, stderrToStdout, stdin, threadIndex);
+    }
+
+    /**
+     *
+     * @return an adjusted copy of this {@link CommandSpec}
+     * @since  0.0.1
+     */
+    public CommandSpec mvn(String version) {
+        final String exec = javaExecutable();
+        return new CommandSpec(() -> exec, arguments, env, cd, expectations, stderrToStdout, stdin, threadIndex);
     }
 
     @ExcludeFromJacocoGeneratedReport
@@ -245,7 +258,8 @@ public class CommandSpec {
      * A {@link CancellationException} can be thrown from any method called on the {@link OutputStream} passed-in to
      * {@link Consumer#accept(Object)}, if {@link CommandProcess#kill(boolean)} is called while
      * {@link Consumer#accept(Object)} is running.
-     * You may want to catch that exception and stop attempting to write to the passed-in {@link OutputStream} after that.
+     * You may want to catch that exception and stop attempting to write to the passed-in {@link OutputStream} after
+     * that.
      * <p>
      * Exceptions thrown from {@link Consumer#accept(Object)} will be caught and reported upon calling
      * {@link CommandResult#assertSuccess()}.
@@ -305,23 +319,24 @@ public class CommandSpec {
     // @formatter:off
     /**
      * Syntactic sugar to make fans of Behavior-Driven testing happy. Allows writing
+     *
      * <pre>{@code
      * CliAssured
-     *     .given()
+     *         .given()
      *         .env("GREETING", "CLI Assured rocks!")
-     *     .when()
+     *         .when()
      *         .command("sh", "-c", "echo $GREETING")
-     *     .then()
+     *         .then()
      *         .stdout()
-     *             .hasLines("CLI Assured rocks!")
-     *             .hasLineCount(1)
+     *         .hasLines("CLI Assured rocks!")
+     *         .hasLineCount(1)
      *         .exitCode(0)
-     *     .execute()
-     *     .assertSuccess();
+     *         .execute()
+     *         .assertSuccess();
      * }</pre>
      *
      * @return this {@link CommandSpec}
-     * @since  0.0.1
+     * @since 0.0.1
      */
     // @formatter:on
     public CommandSpec when() {
@@ -357,7 +372,7 @@ public class CommandSpec {
      */
     @ExcludeFromJacocoGeneratedReport
     public CommandProcess start() {
-        String[] cmdArray = asCmdArray(executable, arguments);
+        String[] cmdArray = asCmdArray(executable.get(), arguments);
         String cmdArrayString = Arrays.stream(cmdArray).map(CommandSpec::quote).collect(Collectors.joining(" "));
         log.info(
                 "Executing\n\n    cd {} &&{} {}{}\n",
@@ -419,7 +434,8 @@ public class CommandSpec {
     }
 
     /**
-     * Starts the command {@link Process} and awaits (potentially indefinitely) its termination at most for the specified
+     * Starts the command {@link Process} and awaits (potentially indefinitely) its termination at most for the
+     * specified
      * duration.
      * A shorthand for {@link #start()}.{@link CommandProcess#awaitTermination(Duration) awaitTermination(Duration)}
      *
@@ -433,7 +449,8 @@ public class CommandSpec {
     }
 
     /**
-     * Starts the command {@link Process} and awaits (potentially indefinitely) its termination at most for the specified
+     * Starts the command {@link Process} and awaits (potentially indefinitely) its termination at most for the
+     * specified
      * timeout in milliseconds.
      * A shorthand for {@link #start()}.{@link CommandProcess#awaitTermination(Duration) awaitTermination(Duration)}
      *
