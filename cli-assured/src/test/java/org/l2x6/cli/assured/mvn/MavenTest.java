@@ -12,7 +12,7 @@ public class MavenTest {
     void hashString() {
         Assertions
                 .assertThat(
-                        Maven.hashString(
+                        Mvn.hashString(
                                 "https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.9.11/apache-maven-3.9.11-bin.zip"))
                 .isEqualTo("a2d47e15");
     }
@@ -21,7 +21,7 @@ public class MavenTest {
     void md5() {
         Assertions
                 .assertThat(
-                        Maven.md5(
+                        Mvn.md5(
                                 "https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.9.6/apache-maven-3.9.6-bin.zip"))
                 .isEqualTo("439sdfsg2nbdob9ciift5h5nse");
     }

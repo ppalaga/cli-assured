@@ -20,7 +20,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.l2x6.cli.assured.CommandProcess;
 import org.l2x6.cli.assured.CommandResult;
-import org.l2x6.cli.assured.mvn.MavenTest;
+import org.l2x6.cli.assured.CommandSpec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +42,7 @@ public class StdinTest {
 
     @Test
     void stdinMultiple() {
-        final MavenTest base = JavaTest.command("stdin")
+        final CommandSpec base = JavaTest.command("stdin")
                 .stdin("CLI Assured rocks!");
         Assertions.assertThatThrownBy(() -> base.stdin("Foo"))
                 .isInstanceOf(IllegalStateException.class)
