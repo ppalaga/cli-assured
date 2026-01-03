@@ -12,13 +12,14 @@ import java.util.UUID;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.l2x6.cli.assured.CliAssured;
-import org.l2x6.cli.assured.mvn.Mvn;
+import org.l2x6.mvn.assured.Mvn;
 
 public class MvnTest {
     @Test
     void installIfNeeded() throws IOException {
         final Path m2Dir = Paths.get("target/m2-" + UUID.randomUUID());
-        Mvn mvn = Mvn.version("3.9.11")
+        final String version = "3.9.11";
+        Mvn mvn = Mvn.version(version)
                 .m2Directory(m2Dir);
         Assertions.assertThat(mvn.isInstalled()).isFalse();
 
@@ -43,6 +44,27 @@ public class MvnTest {
                 .hasLines("Apache Maven 3.9.11 (3e54c93a704957b63ee3494413a2b544fd3d825b)")
                 .execute()
                 .assertSuccess();
+
+
+        Path localZipPath = Paths.get("target/maven-" + version + "-" + UUID.randomUUID() + ".zip");
+        final boolean isWindows = System.getProperty("os.name").toLowerCase().contains("win");
+        CliAssured.command(
+                "curl" + (isWindows ? ".exe" : ""),
+                "-L",
+                "-o", localZipPath.toString(),
+                "https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/"
+                + version + "/apache-maven-" + version + "-bin.zip")
+        .then()
+        .execute()
+        .assertSuccess();
+
+        /* Unzip */
+        if (isWindows) {
+            CliAssured.command(
+                    "pwsh.exe",
+                    "-NoProfile",
+                    "-Command", "");
+        }
 
     }
 }

@@ -2,12 +2,11 @@
  * SPDX-FileCopyrightText: Copyright (c) 2025 CLI Assured contributors as indicated by the @author tags
  * SPDX-License-Identifier: Apache-2.0
  */
-package org.l2x6.cli.assured.mvn;
+package org.l2x6.mvn.assured;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.math.BigInteger;
 import java.net.URL;
@@ -15,18 +14,24 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.FileTime;
+import java.nio.file.attribute.PosixFileAttributeView;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.Properties;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-import java.util.zip.ZipInputStream;
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.slf4j.LoggerFactory;
 
 public class Mvn {
@@ -81,53 +86,11 @@ public class Mvn {
         return new Mvn(version, m2Directory, mavenHome, distributionUrl);
     }
 
-    static String findVersion(Path mavenHome) {
-        final Path libDir = mavenHome.resolve("lib");
-        try (Stream<Path> libs = Files.list(libDir)) {
-            return libs
-                    .map(p -> MAVEN_CORE_PATTERN.matcher(p.getFileName().toString()))
-                    .filter(Matcher::matches)
-                    .map(matcher -> matcher.group(1))
-                    .findFirst()
-                    .orElseThrow(() -> new IllegalStateException("Could not find maven-core-*.jar in " + libDir));
-        } catch (IOException e) {
-            throw new UncheckedIOException("Could not list " + libDir, e);
-        }
-    }
-
     private Mvn(String version) {
         this.version = version;
         this.m2Directory = findM2Directory();
         this.downloadUrl = defaultDownloadUrl(version);
         this.home = null;
-    }
-
-    static Path findDefaultHome(String version, Path m2Directory, String downloadUrl) {
-        return Stream.<Supplier<Path>> of(
-                () -> m2Directory.resolve("wrapper/dists/apache-maven-" + version),
-                () -> m2Directory.resolve("wrapper/dists/apache-maven-" + version + "-bin"))
-                .map(Supplier::get)
-                .filter(Files::isDirectory)
-                .flatMap(versionDir -> hashDirs(versionDir, downloadUrl))
-                .map(Supplier::get)
-                .filter(Files::isDirectory)
-                .findFirst()
-                .orElseGet(() -> m2Directory.resolve("wrapper/dists/apache-maven-" + version + "/" + hashString(downloadUrl)));
-    }
-
-    static Stream<Supplier<Path>> hashDirs(Path versionDir, String downloadUrl) {
-        return Stream.<Supplier<Path>> of(
-                () -> versionDir.resolve(hashString(downloadUrl)),
-                () -> versionDir.resolve(md5(downloadUrl)) // older wrapper versions
-        );
-    }
-
-    static Path findM2Directory() {
-        final String muh = System.getenv("MAVEN_USER_HOME");
-        if (muh != null) {
-            return Paths.get(muh);
-        }
-        return Paths.get(System.getProperty("user.home") + "/.m2");
     }
 
     private Mvn(String version, Path m2Directory, Path home, String downloadUrl) {
@@ -190,43 +153,169 @@ public class Mvn {
             throw new AssertionError("Could not verify " + localFile + " downloaded from " + downloadUrl + ": expected SHA-512 "
                     + expectedSha512 + " but found " + actualSha512);
         }
+        try (ZipFile zipFile = ZipFile.builder().setPath(localFile).setBufferSize(BUFFER_SIZE).get()) {
+            Enumeration<ZipArchiveEntry> entries = zipFile.getEntries();
 
-        try (ZipFile zip = new ZipFile(localFile.toFile())) {
-            Enumeration<ZipEntry> entries = zip.entries();
-            final byte[] buff = new byte[BUFFER_SIZE];
-            ZipEntry entry;
-            int fileCount = 0;
-            while ((entry = zis.getNextEntry()) != null) {
-                if (!entry.isDirectory()) {
-                    Path entryPath = Paths.get(entry.getName());
-                    final int cnt = entryPath.getNameCount();
+            while (entries.hasMoreElements()) {
+                ZipArchiveEntry entry = entries.nextElement();
+
+                Path entryPath = Paths.get(entry.getName());
+                final int cnt = entryPath.getNameCount();
+                if (cnt > 1) {
                     entryPath = entryPath.subpath(1, cnt);
                     Path newFile = home.resolve(entryPath).normalize();
                     if (!newFile.startsWith(home)) {
                         throw new AssertionError("Zip entry " + newFile + " attempted to write outside of " + home);
                     }
                     log.debug("Unpacking " + newFile);
-                    Files.createDirectories(newFile.getParent());
-                    try (OutputStream fos = Files.newOutputStream(newFile)) {
-                        int len;
-                        while ((len = zis.read(buff)) >= 0) {
-                            fos.write(buff, 0, len);
+                    if (entry.isDirectory()) {
+                        Files.createDirectories(newFile);
+                    } else if (entry.isUnixSymlink()) {
+                        final Path linkTarget = newFile.getParent()
+                                .resolve(zipFile.getUnixSymlink(entry))
+                                .normalize();
+                        if (!linkTarget.startsWith(home)) {
+                            throw new AssertionError(
+                                    "Zip symlink entry " + newFile + " -> " + linkTarget + " points outside of " + home);
+                        }
+                        Files.createSymbolicLink(newFile, linkTarget);
+                    } else {
+                        Files.createDirectories(newFile.getParent());
+                        try (InputStream is = zipFile.getInputStream(entry)) {
+                            Files.copy(is, newFile, StandardCopyOption.REPLACE_EXISTING);
                         }
                     }
-                    fileCount++;
+
+                    final Date lastModified = entry.getLastModifiedDate();
+                    if (lastModified != null) {
+                        Files.setLastModifiedTime(newFile, FileTime.fromMillis(lastModified.getTime()));
+                    }
+
+                    /* Restore POSIX permissions */
+                    restorePermissions(entry, newFile);
                 }
-                zis.closeEntry();
             }
-            log.info("Unpacked {} files to {}", fileCount, home);
         } catch (IOException e) {
             throw new UncheckedIOException("Could not unzip " + downloadUrl + " to " + home, e);
-        }
-        try {
-            Files.delete(localFile);
-        } catch (IOException e) {
-            throw new UncheckedIOException("Could not delete " + localFile, e);
+        } finally {
+            if (Files.exists(localFile)) {
+                try {
+                    Files.delete(localFile);
+                } catch (IOException e) {
+                    throw new UncheckedIOException("Could not delete " + localFile, e);
+                }
+            }
         }
         return new Mvn(version, m2Directory, home, downloadUrl);
+    }
+
+    public Mvn assertInstalled() {
+        final Path home = home();
+        if (!Files.isDirectory(home)) {
+            throw new AssertionError("Maven " + version + " is not installed in " + home
+                    + " (directory does not exist). You may want to set Mvn.home(Path) or call Mvn.installIfNeeded()");
+        }
+        final Path executable = executablePath();
+        if (!Files.isRegularFile(executable)) {
+            throw new AssertionError("Maven " + version + " is not installed in " + home
+                    + " (bin/mvn[.cmd] does not exist). You may want to set Mvn.home(Path) or call Mvn.installIfNeeded()");
+        }
+        return this;
+    }
+
+    public boolean isInstalled() {
+        final Path home = home();
+        return Files.isDirectory(home) && Files.isRegularFile(executablePath());
+    }
+
+    public Mvn installIfNeeded() {
+        if (!isInstalled()) {
+            return install();
+        }
+        return this;
+    }
+
+    static String findVersion(Path mavenHome) {
+        final Path libDir = mavenHome.resolve("lib");
+        try (Stream<Path> libs = Files.list(libDir)) {
+            return libs
+                    .map(p -> MAVEN_CORE_PATTERN.matcher(p.getFileName().toString()))
+                    .filter(Matcher::matches)
+                    .map(matcher -> matcher.group(1))
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalStateException("Could not find maven-core-*.jar in " + libDir));
+        } catch (IOException e) {
+            throw new UncheckedIOException("Could not list " + libDir, e);
+        }
+    }
+
+    static Path findDefaultHome(String version, Path m2Directory, String downloadUrl) {
+        return Stream.<Supplier<Path>> of(
+                () -> m2Directory.resolve("wrapper/dists/apache-maven-" + version),
+                () -> m2Directory.resolve("wrapper/dists/apache-maven-" + version + "-bin"))
+                .map(Supplier::get)
+                .filter(Files::isDirectory)
+                .flatMap(versionDir -> hashDirs(versionDir, downloadUrl))
+                .map(Supplier::get)
+                .filter(Files::isDirectory)
+                .findFirst()
+                .orElseGet(() -> m2Directory.resolve("wrapper/dists/apache-maven-" + version + "/" + hashString(downloadUrl)));
+    }
+
+    static Stream<Supplier<Path>> hashDirs(Path versionDir, String downloadUrl) {
+        return Stream.<Supplier<Path>> of(
+                () -> versionDir.resolve(hashString(downloadUrl)),
+                () -> versionDir.resolve(md5(downloadUrl)) // older wrapper versions
+        );
+    }
+
+    static Path findM2Directory() {
+        final String muh = System.getenv("MAVEN_USER_HOME");
+        if (muh != null) {
+            return Paths.get(muh);
+        }
+        return Paths.get(System.getProperty("user.home") + "/.m2");
+    }
+
+    static void restorePermissions(ZipArchiveEntry entry, Path path) throws IOException {
+        int unixMode = entry.getUnixMode();
+        if (unixMode == 0) {
+            return;
+        }
+
+        if (Files.getFileStore(path).supportsFileAttributeView(PosixFileAttributeView.class)) {
+            Set<PosixFilePermission> perms = PosixFilePermissions.fromString(
+                    permissionString(unixMode));
+            Files.setPosixFilePermissions(path, perms);
+        }
+    }
+
+    static String permissionString(int mode) {
+        StringBuilder sb = new StringBuilder(9);
+        int[] masks = { 0400, 0200, 0100, 0040, 0020, 0010, 0004, 0002, 0001 };
+        for (int m : masks) {
+            sb.append((mode & m) != 0 ? permissionChar(m) : '-');
+        }
+        return sb.toString();
+    }
+
+    static char permissionChar(int mask) {
+        switch (mask) {
+        case 0400:
+        case 0040:
+        case 0004:
+            return 'r';
+        case 0200:
+        case 0020:
+        case 0002:
+            return 'w';
+        case 0100:
+        case 0010:
+        case 0001:
+            return 'x';
+        default:
+            return '-';
+        }
     }
 
     static String dowloadText(String url, int expectedByteSize) {
@@ -267,32 +356,6 @@ public class Mvn {
         }
     }
 
-    public Mvn assertInstalled() {
-        final Path home = home();
-        if (!Files.isDirectory(home)) {
-            throw new AssertionError("Maven " + version + " is not installed in " + home
-                    + " (directory does not exist). You may want to set Mvn.home(Path) or call Mvn.installIfNeeded()");
-        }
-        final Path executable = executablePath();
-        if (!Files.isRegularFile(executable)) {
-            throw new AssertionError("Maven " + version + " is not installed in " + home
-                    + " (bin/mvn[.cmd] does not exist). You may want to set Mvn.home(Path) or call Mvn.installIfNeeded()");
-        }
-        return this;
-    }
-
-    public boolean isInstalled() {
-        final Path home = home();
-        return Files.isDirectory(home) && Files.isRegularFile(executablePath());
-    }
-
-    public Mvn installIfNeeded() {
-        if (!isInstalled()) {
-            return install();
-        }
-        return this;
-    }
-
     static String defaultDownloadUrl(String version) {
         return "https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/" + version + "/apache-maven-" + version
                 + "-bin.zip";
@@ -325,30 +388,4 @@ public class Mvn {
         return Long.toHexString(h);
     }
 
-    static void applyUnixPermissions(ZipEntry entry, Path path) {
-        try {
-            int unixMode = entry.getUnixMode();
-            if (unixMode <= 0) {
-                return;
-            }
-
-            Set<PosixFilePermission> perms = EnumSet.noneOf(PosixFilePermission.class);
-
-            if ((unixMode & 0400) != 0) perms.add(PosixFilePermission.OWNER_READ);
-            if ((unixMode & 0200) != 0) perms.add(PosixFilePermission.OWNER_WRITE);
-            if ((unixMode & 0100) != 0) perms.add(PosixFilePermission.OWNER_EXECUTE);
-
-            if ((unixMode & 0040) != 0) perms.add(PosixFilePermission.GROUP_READ);
-            if ((unixMode & 0020) != 0) perms.add(PosixFilePermission.GROUP_WRITE);
-            if ((unixMode & 0010) != 0) perms.add(PosixFilePermission.GROUP_EXECUTE);
-
-            if ((unixMode & 0004) != 0) perms.add(PosixFilePermission.OTHERS_READ);
-            if ((unixMode & 0002) != 0) perms.add(PosixFilePermission.OTHERS_WRITE);
-            if ((unixMode & 0001) != 0) perms.add(PosixFilePermission.OTHERS_EXECUTE);
-
-            Files.setPosixFilePermissions(path, perms);
-        } catch (UnsupportedOperationException | IOException ignored) {
-            // Non-POSIX filesystem or permissions not supported
-        }
-    }
 }

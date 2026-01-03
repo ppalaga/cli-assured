@@ -2,12 +2,12 @@
  * SPDX-FileCopyrightText: Copyright (c) 2025 CLI Assured contributors as indicated by the @author tags
  * SPDX-License-Identifier: Apache-2.0
  */
-package org.l2x6.cli.assured.mvn;
+package org.l2x6.mvn.assured;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class MavenTest {
+public class MvnTest {
     @Test
     void hashString() {
         Assertions

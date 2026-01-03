@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.l2x6.cli.assured.mvn;
+package org.l2x6.mvn.assured;
 
 import java.math.BigInteger;
 import java.util.ArrayDeque;

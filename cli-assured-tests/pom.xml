@@ -24,6 +24,10 @@
         </dependency>
         <dependency>
             <groupId>org.l2x6.cli-assured</groupId>
+            <artifactId>mvn-assured</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.l2x6.cli-assured</groupId>
             <artifactId>cli-assured-test-app</artifactId>
             <scope>test</scope>
         </dependency>
