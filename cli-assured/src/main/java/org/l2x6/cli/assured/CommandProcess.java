@@ -5,6 +5,8 @@
 package org.l2x6.cli.assured;
 
 import java.time.Duration;
+import java.util.Objects;
+
 import org.l2x6.cli.assured.CliAssertUtils.ExcludeFromJacocoGeneratedReport;
 import org.l2x6.cli.assured.asserts.Assert;
 import org.l2x6.cli.assured.asserts.ExitCodeAssert;
@@ -16,7 +18,7 @@ import org.l2x6.cli.assured.asserts.ExitCodeAssert;
  * @since  0.0.1
  * @author <a href="https://github.com/ppalaga">Peter Palaga</a>
  */
-public class CommandProcess {
+public class CommandProcess implements AutoCloseable {
 
     private final String cmdString;
     private final Process process;
@@ -38,13 +40,14 @@ public class CommandProcess {
             OutputConsumer out,
             OutputConsumer err) {
         super();
-        this.cmdString = cmdArrayString;
-        this.process = process;
-        this.asserts = asserts;
-        this.exitCodeAssert = exitCodeAssert;
-        this.stdin = stdin;
-        this.out = out;
-        this.err = err;
+        this.cmdString = Objects.requireNonNull(cmdArrayString, "cmdArrayString");
+        this.process = Objects.requireNonNull(process, "process");
+        this.asserts = Objects.requireNonNull(asserts, "asserts");
+        this.exitCodeAssert = Objects.requireNonNull(exitCodeAssert, "exitCodeAssert");
+        this.stdin = Objects.requireNonNull(stdin, "stdin");
+        this.out = Objects.requireNonNull(out, "out");
+        this.err = Objects.requireNonNull(err, "err");
+        this.pid = PidLookup.getPid(process);
         this.shutDownHook = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -183,6 +186,21 @@ public class CommandProcess {
 
     public String toString() {
         return cmdString;
+    }
+
+    /**
+     * Calls {@link #kill(boolean) kill(false)} and {@link #awaitTermination()}
+     *
+     *  @since 0.0.1
+     */
+    @Override
+    public void close() {
+        kill(false);
+        awaitTermination();
+    }
+
+    public long pid() {
+        return pid;
     }
 
 }

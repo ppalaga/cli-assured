@@ -138,6 +138,20 @@ public class JavaTest {
         assertKill(false, 137);
     }
 
+    @Test
+    void close() {
+        List<String> lines = Collections.synchronizedList(new ArrayList<>());
+        try (CommandProcess proc = run("sleep", "500")
+                .log(lines::add)
+                .exitCodeIsAnyOf(1, 137) // Windows, Linux
+                .start()) {
+            proc.pid();
+            Awaitility.waitAtMost(10, TimeUnit.SECONDS)
+            .until(() -> lines.size() == 1 && lines.contains("About to sleep for 500 ms"));
+        }
+
+    }
+
     static void assertKill(boolean forcibly, int exitCodeLinux) {
         List<String> lines = Collections.synchronizedList(new ArrayList<>());
         CommandProcess proc = run("sleep", "500")
