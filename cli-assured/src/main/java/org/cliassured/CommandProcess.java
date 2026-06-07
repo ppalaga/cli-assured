@@ -8,6 +8,8 @@ import java.time.Duration;
 import java.util.Objects;
 import java.util.stream.LongStream;
 import org.cliassured.CliAssertUtils.ExcludeFromJacocoGeneratedReport;
+import org.cliassured.StreamExpectationsSpec.OutputCapture;
+import org.cliassured.StreamExpectationsSpec.ProcessOutput;
 import org.cliassured.asserts.Assert;
 import org.cliassured.asserts.ExitCodeAssert;
 
@@ -169,8 +171,8 @@ public class CommandProcess implements AutoCloseable {
                 cmdString,
                 -1,
                 Duration.ofMillis(System.currentTimeMillis() - timeoutStart),
-                out.byteCount(),
-                err.byteCount(),
+                new StreamResult(out.byteCount(), out.capture()),
+                new StreamResult(err.byteCount(), err.capture()),
                 new TimeoutAssertionError("Command has not terminated within " + timeoutMs + " ms"),
                 asserts);
     }
@@ -207,8 +209,9 @@ public class CommandProcess implements AutoCloseable {
                 cmdString,
                 exitCode,
                 Duration.ofMillis(System.currentTimeMillis() - startMillisTime),
-                out.byteCount(),
-                err != null ? err.byteCount() : 0,
+                new StreamResult(out.byteCount(), out.capture()),
+                new StreamResult(err != null ? err.byteCount() : 0,
+                        err != null ? err.capture() : OutputCapture.noCapture(ProcessOutput.stderr)),
                 null,
                 asserts);
     }

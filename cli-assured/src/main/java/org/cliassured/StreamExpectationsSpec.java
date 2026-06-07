@@ -804,6 +804,29 @@ public class StreamExpectationsSpec {
             }
         }
 
+        /**
+         * @return                       a {@link Stream} of lines captured from the associated stream
+         * @throws IllegalStateException if {@link StreamExpectationsSpec#captureAll()} was not called on the associated stream
+         * @since                        0.1.0
+         */
+        public Stream<String> lines() {
+            if (maxHead >= 0) {
+                throw new IllegalStateException(
+                        "Call CliAssured.command(...).then()."
+                                + stream.name() + "().captureAll() to be able to retrieve all lines via CommandResult."
+                                + stream.name() + ".lines()");
+            }
+            return headLines.stream();
+        }
+
+        /**
+         * @return the number of lines captured from the associated stream
+         * @since  0.1.0
+         */
+        public int lineCount() {
+            return lineCount;
+        }
+
         @ExcludeFromJacocoGeneratedReport
         public StringBuilder toString(StringBuilder sb) {
             synchronized (headLines) {

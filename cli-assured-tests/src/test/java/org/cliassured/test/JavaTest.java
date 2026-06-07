@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import org.assertj.core.api.Assertions;
 import org.cliassured.CliAssured;
 import org.cliassured.CommandProcess;
@@ -89,6 +90,7 @@ public class JavaTest {
                 .assertSuccess();
 
         Assertions.assertThat(result.byteCountStderr()).isBetween(17L, 18L);
+        Assertions.assertThat(result.stderr().byteCount()).isBetween(17L, 18L);
         Assertions.assertThat(result.duration()).isGreaterThan(Duration.ofMillis(0));
 
         Assertions
@@ -519,6 +521,7 @@ public class JavaTest {
                     .awaitTermination()
                     .assertSuccess();
             Assertions.assertThat(result.byteCountStdout()).isBetween(10L, 11L);
+            Assertions.assertThat(result.stdout().byteCount()).isBetween(10L, 11L);
         }
 
         {
@@ -535,6 +538,7 @@ public class JavaTest {
 
             Assertions.assertThat(result.byteCountStdout())
                     .isBetween(10L, 11L); // it is 10 on Linux and 11 on Windows
+            Assertions.assertThat(result.stdout().byteCount()).isBetween(10L, 11L);
         }
 
         {
@@ -550,6 +554,7 @@ public class JavaTest {
                                     Pattern.DOTALL));
 
             Assertions.assertThat(result.byteCountStdout()).isBetween(11L, 12L);
+            Assertions.assertThat(result.stdout().byteCount()).isBetween(11L, 12L);
         }
 
     }
@@ -586,6 +591,20 @@ public class JavaTest {
                 .start()
                 .awaitTermination()::assertSuccess).isInstanceOf(AssertionError.class)
                 .hasMessageEndingWith(expected.toString());
+
+        CommandResult result = run("outputLines", "5")
+                .captureAll()
+                .stderr()
+                .captureAll()
+                .execute()
+                .assertSuccess();
+        Assertions.assertThat(result.stdout().lines().count()).isEqualTo(5);
+        Assertions.assertThat(result.stdout().lines().collect(Collectors.toList())).contains("Line 0", "Line 1", "Line 2",
+                "Line 3",
+                "Line 4");
+        Assertions.assertThat(result.stdout().byteCount()).isBetween(7L * 5L/* Linux */, 8L * 5L /* Windows */ );
+        Assertions.assertThat(result.stderr().lines().count()).isEqualTo(0);
+        Assertions.assertThat(result.stderr().byteCount()).isEqualTo(0);
 
         Assertions.assertThatThrownBy(run("outputLines", "35")
                 .capture(3, 3)
