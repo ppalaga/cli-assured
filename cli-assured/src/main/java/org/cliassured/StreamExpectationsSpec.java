@@ -760,7 +760,9 @@ public class StreamExpectationsSpec {
         private final StreamExpectationsSpec.ProcessOutput stream;
 
         private int lineCount = 0;
-        private final List<String> headLines = new ArrayList<>();
+        private List<String> headLines = new ArrayList<>();
+        private final Object headLinesLock = new Object();
+        private boolean headLinesSealed = false;
         private String[] tailLines;
         private int tailLinesCount = 0;
 
@@ -789,7 +791,7 @@ public class StreamExpectationsSpec {
          * @since      0.0.1
          */
         public void capture(String line) {
-            synchronized (headLines) {
+            synchronized (headLinesLock) {
 
                 if (maxHead < 0 || headLines.size() < maxHead) {
                     headLines.add(line);
@@ -804,32 +806,32 @@ public class StreamExpectationsSpec {
             }
         }
 
-        /**
-         * @return                       a {@link Stream} of lines captured from the associated stream
-         * @throws IllegalStateException if {@link StreamExpectationsSpec#captureAll()} was not called on the associated stream
-         * @since                        0.1.0
-         */
-        public Stream<String> lines() {
-            if (maxHead >= 0) {
-                throw new IllegalStateException(
-                        "Call CliAssured.command(...).then()."
-                                + stream.name() + "().captureAll() to be able to retrieve all lines via CommandResult."
-                                + stream.name() + ".lines()");
-            }
-            return headLines.stream();
+        Supplier<List<String>> result() {
+            return () -> {
+                if (maxHead >= 0) {
+                    throw new IllegalStateException(
+                            "Call CliAssured.command(...).then()."
+                                    + stream.name() + "().captureAll() to be able to retrieve all lines via CommandResult."
+                                    + stream.name() + ".lines()");
+                }
+                seal();
+                return headLines;
+            };
         }
 
-        /**
-         * @return the number of lines captured from the associated stream
-         * @since  0.1.0
-         */
-        public int lineCount() {
-            return lineCount;
+        void seal() {
+            synchronized (headLinesLock) {
+                if (!headLinesSealed) {
+                    headLinesSealed = true;
+                    headLines = Collections.unmodifiableList(headLines);
+                }
+            }
         }
+
 
         @ExcludeFromJacocoGeneratedReport
         public StringBuilder toString(StringBuilder sb) {
-            synchronized (headLines) {
+            synchronized (headLinesLock) {
                 int storedTailLines = Math.min(tailLinesCount, maxTail);
                 if (lineCount == 0) {
                     sb.append(stream.name()).append(": <no output>");

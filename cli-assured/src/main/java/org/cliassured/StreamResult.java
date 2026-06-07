@@ -4,6 +4,7 @@
  */
 package org.cliassured;
 
+import java.util.List;
 import java.util.stream.Stream;
 import org.cliassured.StreamExpectationsSpec.OutputCapture;
 
@@ -15,11 +16,11 @@ import org.cliassured.StreamExpectationsSpec.OutputCapture;
  */
 public class StreamResult {
     private final long byteCount;
-    private final OutputCapture capture;
+    private final List<String> lines;
 
-    StreamResult(long byteCount, OutputCapture capture) {
+    StreamResult(long byteCount, List<String> lines) {
         this.byteCount = byteCount;
-        this.capture = capture;
+        this.lines = lines;
     }
 
     /**
@@ -29,7 +30,7 @@ public class StreamResult {
      * @since                        0.1.0
      */
     public Stream<String> lines() {
-        return capture.lines();
+        return lines.stream();
     }
 
     /**
@@ -37,7 +38,7 @@ public class StreamResult {
      * @since  0.1.0
      */
     public int lineCount() {
-        return capture.lineCount();
+        return lines.size();
     }
 
     /**
